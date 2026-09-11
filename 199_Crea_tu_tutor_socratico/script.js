@@ -808,7 +808,7 @@ const maxLen = 800000;
 <body>
 <div class="container">
     <header>
-        <h1>Chatbot PDF Interactivo</h1>
+        <h1>Chatbot tutor socrático</h1>
         <p>${userSubtitle}</p>
     </header>
     <div class="toolbar">
