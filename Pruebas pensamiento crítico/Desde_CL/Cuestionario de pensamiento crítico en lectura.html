@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pensamiento crítico en lectura</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,700;1,500&display=swap">
+<style>
+:root{--bg:#eef3f3;--ln:#d9e4e4;--card:#fffffe;--tx:#1b2b33;--mu:#566872;--bd:#c9d6d6;--ac:#0b6e6e;--acs:#dcefef;--ok:#26733f;--okb:#e4f3e8;--ko:#a8322f;--kob:#fbe9e8;--hl:#fff1a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10191c;--ln:#18262a;--card:#17242a;--tx:#e6eef0;--mu:#97aab2;--bd:#2c4048;--ac:#5fd0d0;--acs:#173236;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c;--hl:#4a4318}}
+:root[data-theme="dark"]{--bg:#10191c;--ln:#18262a;--card:#17242a;--tx:#e6eef0;--mu:#97aab2;--bd:#2c4048;--ac:#5fd0d0;--acs:#173236;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c;--hl:#4a4318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:repeating-linear-gradient(transparent,transparent 31px,var(--ln) 31px,var(--ln) 32px);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+h1,h2{font-family:Newsreader,Georgia,serif;line-height:1.2;margin:0 0 12px}
+h1{font-size:2.1rem}h2{font-size:1.45rem}
+.sheet{background:var(--card);border:1px solid var(--bd);border-top:5px solid var(--ac);border-radius:6px;padding:22px}
+.mu{color:var(--mu)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:11px 22px;font-weight:600}
+:root[data-theme="dark"] .btn{color:#0b1416}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0b1416}}
+.bar{height:8px;background:var(--acs);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;margin-bottom:8px}
+.tag{display:inline-block;background:var(--acs);color:var(--ac);border-radius:4px;padding:2px 10px;font-size:.85rem;font-weight:600;margin:14px 0 8px}
+blockquote{margin:6px 0 14px;padding:12px 16px;border-left:4px solid var(--ac);background:linear-gradient(transparent 60%,var(--hl) 60%,var(--hl) 62%,transparent 62%) ,var(--acs);background-blend-mode:normal;font:italic 500 1.12rem/1.6 Newsreader,Georgia,serif;border-radius:0 6px 6px 0}
+.q{font-size:1.08rem;margin:0 0 16px;font-weight:600}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:6px;padding:11px 14px;margin-bottom:9px}
+.opt:hover:not(:disabled){border-color:var(--ac)}
+.opt.ok{border-color:var(--ok);background:var(--okb)}
+.opt.ko{border-color:var(--ko);background:var(--kob)}
+.opt:disabled{cursor:default;color:var(--tx)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:6px;background:var(--acs)}
+.fb.ok{background:var(--okb)}.fb.ko{background:var(--kob)}
+.fb b{display:block;margin-bottom:2px}
+.hide{display:none}
+.big{font-family:Newsreader,Georgia,serif;font-size:3rem;font-weight:700;line-height:1}
+.dim{margin:14px 0}
+.dim .row{display:flex;justify-content:space-between;font-size:.95rem;margin-bottom:4px}
+.rev{border-top:1px solid var(--bd);padding-top:12px;margin-top:12px;font-size:.95rem}
+</style></head><body><main>
+<section id="intro" class="sheet">
+<h1>¿Lees con espíritu crítico?</h1>
+<p>20 preguntas para evaluar tu pensamiento crítico en la lectura: interpretar el sentido de un texto, analizar sus argumentos, evaluar sus fuentes y evidencias, inferir lo no dicho y reconocer la intención de quien escribe.</p>
+<p class="mu">Cada pregunta parte de un fragmento breve. Recibes retroalimentación después de cada respuesta y, al final, un perfil por habilidad. Las preguntas y las opciones cambian de orden en cada intento.</p>
+<button class="btn" onclick="start()">Comenzar</button>
+</section>
+<section id="quiz" class="sheet hide">
+<div class="top"><span id="cnt"></span><span class="mu" id="pts"></span></div>
+<div class="bar"><i id="pb"></i></div>
+<span class="tag" id="dim"></span>
+<blockquote id="tx"></blockquote>
+<p class="q" id="q"></p>
+<div id="opts"></div>
+<div id="fb" class="fb hide"></div>
+<p><button class="btn hide" id="nx" onclick="next()">Siguiente</button></p>
+</section>
+<section id="res" class="sheet hide"></section>
+</main>
+<script>
+const D={I:"Interpretación",A:"Análisis",E:"Evaluación",N:"Inferencia",C:"Contextualización",R:"Autorregulación"};
+const DS={I:"captar el sentido, la idea central y el tono de un texto, más allá de su literalidad",A:"identificar premisas, conclusiones, supuestos y la función de cada parte del argumento",E:"juzgar la calidad de las fuentes, la evidencia y la solidez del razonamiento, y detectar falacias",N:"deducir lo implícito y sacar conclusiones que el texto realmente permite",C:"reconocer la intención, la perspectiva y el lenguaje valorativo de quien escribe",R:"monitorear tu propia comprensión y tus sesgos como lector"};
+const TIP={I:"Antes de responder, parafrasea el pasaje con tus palabras y distingue lo literal de lo figurado o irónico.",A:"Subraya la conclusión y pregunta: ¿qué premisas la sostienen y qué supuestos callan?",E:"Ante cada afirmación pregunta quién la dice, con qué evidencia, con qué interés y qué falacia podría contener.",N:"Diferencia lo que el texto afirma, lo que sugiere y lo que tú añades; no conviertas asociación en causa.",C:"Observa el medio, el autor, el público al que se dirige y las palabras con carga emocional.",R:"Hazte el hábito de resumir lo leído y de aplicar el mismo rigor a lo que confirma y a lo que contradice tus ideas."};
+/* [dimensión, fragmento, pregunta, opciones (la correcta va primero), retroalimentación] */
+const Q=[
+["I","“La ciudad no perdió su río; lo olvidó bajo el cemento, y el olvido, como el agua, siempre encuentra por dónde volver.”","¿Qué sugiere el autor con esta frase?",["Que la naturaleza ocultada tarde o temprano reclama su espacio, por ejemplo con inundaciones","Que el río desapareció físicamente","Que el cemento es un material impermeable","Que la ciudad sufre una sequía"],"La frase es figurada: el “olvido” que “encuentra por dónde volver” alude a lo ocultado que reaparece. Leerla de forma literal desvía el sentido."],
+["I","“El informe no dice que el programa haya fracasado; señala que sus metas, tal como se formularon, no eran medibles.”","¿Cuál es la idea central del fragmento?",["Que el programa no puede evaluarse bien porque sus metas eran imprecisas, lo que no equivale a decir que fracasó","Que el programa fracasó","Que el programa cumplió todas sus metas","Que el informe no tiene conclusiones"],"El texto distingue entre “fracasar” y “no poder medirse”. Captar esa distinción es parte de interpretar con precisión."],
+["I","“Claro, porque subir el precio del transporte por tercera vez este año es una muestra de enorme sensibilidad hacia los usuarios.”","¿Qué intención comunica el autor?",["Ironía: critica el alza diciendo lo contrario de lo que piensa","Elogia sinceramente la medida","Informa neutralmente sobre el precio","Pregunta cuántas veces subió el pasaje"],"Cuando lo dicho choca con el contexto (alzas repetidas = “sensibilidad”), hay ironía. El tono es parte del significado."],
+["I","“Entre 2015 y 2020 la deserción pasó del 12 % al 9 %; en el mismo lapso la matrícula creció un 30 %.”","¿Qué enunciado se desprende del texto sin añadir nada?",["La deserción bajó 3 puntos porcentuales y la matrícula creció en el mismo periodo, sin que el texto indique una causa","La deserción bajó porque la matrícula creció","La deserción se redujo en un 3 %","El programa de apoyo redujo la deserción"],"El texto presenta dos datos simultáneos, no una relación causal. Además, 12 % → 9 % son 3 puntos porcentuales (una caída relativa del 25 %)."],
+["A","“Los estudiantes que leen más obtienen mejores notas. Por eso, hay que obligar a todos a leer una hora diaria.”","¿Qué supuesto no expresado sostiene este argumento?",["Que leer más causa las mejores notas y que obligar a leer producirá el mismo efecto","Que todos los estudiantes disfrutan leer","Que una hora es el tiempo ideal de lectura","Que las notas miden toda la inteligencia"],"El argumento pasa de una asociación (leen más y tienen mejores notas) a una causa y a una política. Esos saltos son supuestos que conviene examinar."],
+["A","“Aunque la medida reduce costos, perjudica a los trabajadores; por tanto, debe rechazarse.”","¿Cuál es la conclusión del argumento?",["La medida debe rechazarse","La medida reduce costos","La medida perjudica a los trabajadores","Los trabajadores reducen costos"],"La conclusión suele marcarse con conectores como “por tanto”. “Aunque…” introduce una concesión, y la premisa decisiva es el perjuicio a los trabajadores."],
+["A","“Algunos sostienen que el teletrabajo reduce la productividad. Sin embargo, tres estudios recientes muestran lo contrario.”","¿Qué función cumple la primera oración?",["Presentar una postura contraria para rebatirla (contraargumento)","Expresar la tesis del autor","Aportar la evidencia principal","Concluir el texto"],"El conector “Sin embargo” revela que la primera oración es la posición que el autor discute, no la que defiende."],
+["A","“Si un texto fuera confiable, citaría sus fuentes. Este texto no cita fuentes. Por lo tanto, no es confiable.”","¿Qué es lo más cuestionable de este razonamiento?",["La primera premisa: hay textos confiables que no citan formalmente sus fuentes","La forma lógica, que es inválida","Que el texto sea breve","Que use la palabra “confiable”"],"La forma es válida (si P entonces Q; no Q), pero la conclusión solo es sólida si las premisas son verdaderas. Aquí la primera premisa es discutible."],
+["E","“La crema se anuncia con el aval de ‘el 95 % de los usuarios satisfechos’, dato de una encuesta hecha por la marca entre quienes compraron dos o más veces.”","¿Cuál es la crítica más sólida a esta evidencia?",["Solo se consultó a quienes ya repitieron la compra (sesgo de selección) y la fuente tiene interés comercial","El porcentaje es demasiado alto para ser verdad","Las encuestas nunca prueban nada","Debió preguntarse a más de 100 personas, sin importar quiénes"],"Quien compra de nuevo probablemente quedó satisfecho: se excluye a los insatisfechos. Además, la marca es parte interesada."],
+["E","“No debemos aceptar su propuesta de reforma tributaria; recuerden que él mismo evadió impuestos en 2010.”","¿Qué falacia contiene el argumento?",["Ad hominem: ataca a la persona en lugar de evaluar la propuesta","Pendiente resbaladiza","Falsa dicotomía","Apelación a la autoridad"],"El comportamiento pasado del proponente no demuestra que su propuesta sea mala. La propuesta debe evaluarse por sus méritos."],
+["E","“Si permitimos la calculadora en el examen, mañana pedirán que nadie estudie y la universidad perderá su sentido.”","¿Qué falacia se observa?",["Pendiente resbaladiza: anticipa una cadena de consecuencias extremas sin evidencia","Ad hominem","Apelación a la mayoría","Generalización apresurada a partir de un caso"],"Se pasa de un cambio menor a un desenlace catastrófico sin justificar los pasos intermedios."],
+["E","“Un estudio con 12 personas, financiado por el fabricante de la bebida, halló que esta mejora la concentración.”","¿Qué crítica es más pertinente?",["La muestra pequeña y el conflicto de interés limitan la confianza y la generalización","El estudio es inválido por ser financiado, sin excepción","Doce personas es un tamaño ideal","Que la bebida sea de un fabricante conocido"],"Una muestra pequeña ofrece resultados inestables, y la financiación por la parte interesada exige cautela y réplica independiente."],
+["N","“La mayoría de las tiendas del barrio cerraron después de que abriera el centro comercial.”","¿Qué inferencia está justificada?",["Que los cierres ocurrieron después de la apertura; el texto no establece que esta fuera la causa","Que el centro comercial causó los cierres","Que el barrio quedó sin comercio","Que las tiendas eran de mala calidad"],"“Después de” no es “a causa de”. Faltan datos para descartar otras explicaciones (costos, ventas en línea, cambios del barrio)."],
+["N","“Aunque el director prometió transparencia, las actas de las reuniones siguen sin publicarse.”","¿Qué sugiere el texto sin decirlo?",["Que la promesa de transparencia no se ha cumplido","Que el director renunció","Que las reuniones no existen","Que las actas son secretas por ley"],"El conector “aunque” contrapone la promesa con la realidad; la inferencia razonable es el incumplimiento, no hechos nuevos."],
+["N","“El médico explicó que el tratamiento ‘puede’ reducir los síntomas en algunos pacientes.”","¿Qué conclusión es la más acertada?",["Existe un beneficio posible, pero no garantizado ni universal","El tratamiento cura a todos","El tratamiento no sirve","Todos los pacientes mejorarán"],"Las palabras “puede” y “algunos” delimitan el alcance. Leer con atención los modalizadores evita sobreinterpretar."],
+["N","“Ninguna de las propuestas del comité fue aprobada. Algunas de ellas eran de Marta.”","¿Qué conclusión se deduce con certeza?",["Al menos una propuesta de Marta presentada al comité no fue aprobada","Todas las propuestas de Marta fueron rechazadas","Marta dejó el comité","El comité rechazó las propuestas por ser de Marta"],"Solo sabemos que las propuestas de Marta incluidas entre las del comité no pasaron. El texto no dice nada sobre otras propuestas ni sobre los motivos."],
+["C","Versión A: “Los manifestantes ocuparon la plaza.” Versión B: “Los manifestantes arrasaron la plaza.”","¿Qué revela la elección del verbo en la versión B?",["Una postura valorativa del autor mediante lenguaje cargado","Que la descripción es más objetiva","Que la plaza estaba vacía","Que ambas versiones son equivalentes"],"“Arrasar” añade una valoración de destrucción que “ocupar” no tiene. El lenguaje cargado orienta al lector sin declararlo."],
+["C","Un artículo sobre los beneficios de cierta dieta aparece en el blog de una empresa que vende suplementos para esa dieta.","¿Qué pregunta es más útil para leerlo críticamente?",["¿Quién lo escribe, qué interés tiene y qué evidencia independiente presenta?","¿Cuántas palabras tiene?","¿Está bien diseñado el blog?","¿Cuántos lectores lo han compartido?"],"Conocer la autoría, el interés y la evidencia permite ponderar el texto; la popularidad o el diseño no garantizan fiabilidad."],
+["R","Terminas de leer un artículo y notas que no podrías resumir su tesis en dos frases.","¿Qué haces?",["Releo identificando la tesis y los argumentos, y parafraseo cada párrafo","Sigo adelante: ya lo leí","Memorizo las frases más llamativas","Me quedo solo con el titular"],"Notar que no comprendiste es el primer paso de la autorregulación. Releer con una estrategia es mejor que seguir sin entender."],
+["R","Un artículo confirma exactamente lo que ya pensabas.","¿Cuál es la actitud más crítica?",["Aplicarle el mismo rigor que a uno que me contradice: revisar fuentes y evidencias","Aceptarlo porque coincide con mi opinión","Compartirlo de inmediato","Descartar cualquier crítica a su contenido"],"El sesgo de confirmación nos hace bajar la guardia con lo que coincide con nuestras ideas. La lectura crítica exige el mismo estándar para todos los textos."]
+];
+let qs,i,ans,done;
+const $=id=>document.getElementById(id);
+const sh=a=>{a=a.slice();for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}return a};
+const show=id=>["intro","quiz","res"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+function start(){qs=sh(Q).map(q=>({d:q[0],t:q[1],q:q[2],o:sh(q[3].map((t,n)=>({t,ok:n===0}))),f:q[4]}));i=0;ans=[];show("quiz");render();window.scrollTo(0,0)}
+function render(){
+  const q=qs[i];done=false;
+  $("cnt").textContent="Pregunta "+(i+1)+" de "+qs.length;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("pb").style.width=(i/qs.length*100)+"%";
+  $("dim").textContent=D[q.d];
+  $("tx").textContent=q.t;
+  $("q").textContent=q.q;
+  $("opts").innerHTML=q.o.map((o,k)=>'<button class="opt" onclick="pick('+k+')">'+o.t+'</button>').join("");
+  $("fb").className="fb hide";$("nx").classList.add("hide");
+}
+function pick(k){
+  if(done)return;done=true;
+  const q=qs[i],ok=q.o[k].ok;ans.push(ok);
+  [...$("opts").children].forEach((b,n)=>{b.disabled=true;if(q.o[n].ok)b.classList.add("ok");else if(n===k)b.classList.add("ko")});
+  $("fb").className="fb "+(ok?"ok":"ko");
+  $("fb").innerHTML="<b>"+(ok?"¡Buena lectura!":"Revisemos esta lectura")+"</b>"+q.f;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("nx").textContent=i===qs.length-1?"Ver mis resultados":"Siguiente";
+  $("nx").classList.remove("hide");$("nx").focus();
+}
+function next(){i++;if(i<qs.length)render();else finish();window.scrollTo(0,0)}
+function finish(){
+  const tot={},ok={};qs.forEach((q,n)=>{tot[q.d]=(tot[q.d]||0)+1;ok[q.d]=(ok[q.d]||0)+(ans[n]?1:0)});
+  const s=ans.filter(Boolean).length;
+  const lv=s>=17?["Lector crítico avanzado","Interpretas con precisión, detectas falacias y distingues lo dicho de lo sugerido. Tu reto es mantener ese rigor con textos más largos, densos o afines a tus ideas."]:s>=13?["Lector crítico competente","Lees bien en la mayoría de los casos, aunque a veces aceptas supuestos o saltos causales sin cuestionarlos. Fortalecer las dimensiones más bajas te llevará al nivel avanzado."]:s>=9?["Lectura crítica en desarrollo","Comprendes el sentido general, pero te cuesta cuestionar fuentes, supuestos o intenciones. La práctica deliberada en las dimensiones señaladas te hará avanzar rápido."]:["Lectura crítica inicial","Es un buen punto de partida: ahora sabes en qué preguntar más al leer. Revisa la retroalimentación y vuelve a intentarlo."];
+  const keys=Object.keys(D);
+  const dims=keys.map(k=>{const p=Math.round(ok[k]/tot[k]*100),st=p>=75?"Fortaleza":p>=50?"En desarrollo":"Por fortalecer";
+    return '<div class="dim"><div class="row"><span><b>'+D[k]+'</b> <span class="mu">— '+st+'</span></span><span>'+ok[k]+'/'+tot[k]+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div><div class="mu" style="font-size:.88rem;margin-top:3px">'+DS[k]+'</div></div>'}).join("");
+  const weak=keys.filter(k=>ok[k]/tot[k]<0.75).map(k=>"<li><b>"+D[k]+":</b> "+TIP[k]+"</li>").join("");
+  const miss=qs.map((q,n)=>ans[n]?"":'<div class="rev"><i class="mu">'+q.t+'</i><br><b>'+q.q+'</b><br><span style="color:var(--ok)">Respuesta correcta: '+q.o.find(o=>o.ok).t+'</span><br><span class="mu">'+q.f+'</span></div>').join("");
+  $("res").innerHTML='<h2>Tu perfil de lectura crítica</h2><div class="big">'+s+'<span class="mu" style="font-size:1.4rem"> / 20</span></div><h2 style="margin-top:10px">'+lv[0]+'</h2><p>'+lv[1]+'</p>'+dims+
+   (weak?'<h2>Cómo seguir mejorando</h2><ul>'+weak+'</ul>':'<p><b>Tienes fortaleza en todas las dimensiones.</b> Prueba a explicar tus lecturas a otra persona para consolidarlas.</p>')+
+   (miss?'<h2>Preguntas para revisar</h2>'+miss:'')+'<p><button class="btn" onclick="start()">Intentar de nuevo</button></p>';
+  show("res");
+}
+</script></body></html>

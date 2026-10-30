@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Versión B de un cuestionario interactivo de lectura crítica y pensamiento crítico para estudiantes universitarios.">
+<title>Lectura crítica y pensamiento crítico — Versión B</title>
+<style>
+:root{--ink:#17243a;--muted:#617087;--blue:#2457a7;--cyan:#18a6a6;--paper:#f4f7fb;--line:#dce4ef;--good:#147d54;--bad:#b43a3a;--gold:#a86a0b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#183c78,#137f91);color:white;padding:34px 20px 28px}
+.wrap{max-width:980px;margin:auto;padding:0 18px}header h1{font-size:clamp(1.65rem,4vw,2.35rem);line-height:1.15;margin:0 0 10px}header p{max-width:760px;margin:0;color:#e8f4ff}
+main{padding:26px 0 54px}.panel,.question-card,.result-card{background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 20px #1d35570b}
+.panel{padding:20px;margin-bottom:18px}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.tag{background:#eaf2ff;color:#234f91;border-radius:999px;padding:5px 11px;font-size:.84rem;font-weight:650}
+.notice{font-size:.93rem;color:var(--muted)}.progress-line{height:9px;background:#e8edf4;border-radius:99px;overflow:hidden;margin:10px 0}.progress-line span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+.question-card{padding:clamp(18px,3vw,28px);margin:18px 0}.dimension{font-size:.8rem;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--cyan)}.question-card h2{font-size:1.22rem;line-height:1.4;margin:8px 0 16px}
+.options{display:grid;gap:10px}.option{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:11px;cursor:pointer;transition:.15s}.option:hover{border-color:#8ba9d4;background:#f8fbff}.option input{margin-top:5px;accent-color:var(--blue);transform:scale(1.12)}.option.selected{border-color:var(--blue);background:#edf4ff}.option.correct{border-color:#73b99a;background:#effaf4}.option.incorrect{border-color:#d98a8a;background:#fff3f3}
+.hint{margin-top:15px}.hint summary{cursor:pointer;color:var(--blue);font-weight:650}.hint p{margin:8px 0 0;color:var(--muted);font-size:.93rem}
+.feedback{display:none;margin-top:16px;padding:13px 15px;border-radius:10px;background:#f0f5fb;border-left:4px solid var(--blue);font-size:.94rem}.feedback.show{display:block}.feedback strong{display:block;margin-bottom:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.btn{border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#eaf0f7;color:var(--ink)}.ghost{background:white;border:1px solid var(--line);color:var(--ink)}.btn:disabled{opacity:.45;cursor:not-allowed}
+#results{display:none}.result-card{padding:clamp(18px,3vw,28px);margin-top:20px}.score{font-size:2.5rem;font-weight:800;color:var(--blue);line-height:1.1}.level{font-size:1.2rem;font-weight:750;margin:6px 0 12px}.dimension-result{margin:17px 0}.dimension-result .topline{font-weight:650;color:var(--ink)}.bar{height:10px;background:#e8edf4;border-radius:99px;margin-top:7px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:13px 15px;background:#f2f7fb;border-radius:10px;margin:12px 0}.small{font-size:.88rem;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.85rem;padding:18px}
+@media(max-width:600px){.wrap{padding:0 13px}.panel{padding:16px}.actions .btn{flex:1}.question-card{margin:13px 0}}
+@media print{body{background:white}.no-print,header .notice,#quiz{display:none!important}#results{display:block!important}.result-card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <h1>Lectura crítica y pensamiento crítico</h1>
+  <p>Cuestionario universitario · Versión B · Evaluación posterior</p>
+  <div class="meta"><span class="tag">20 preguntas</span><span class="tag">4 dimensiones</span><span class="tag">Aplicación posterior</span></div>
+  <p class="notice">Instrumento diagnóstico-formativo. Esta versión utiliza situaciones y textos distintos a los de la Versión A, conservando las dimensiones y la escala de valoración.</p>
+ </div>
+</header>
+<main class="wrap">
+ <section class="panel" id="intro">
+  <h2>Orientaciones</h2>
+  <p>Lee cuidadosamente cada situación y selecciona la respuesta que mejor se sustenta en la información presentada. Algunas preguntas permiten seleccionar más de una opción o responder verdadero/falso.</p>
+  <p class="notice">Responde sin consultar fuentes externas. El cuestionario ofrece retroalimentación después de cada respuesta. Tiempo sugerido: 25–35 minutos.</p>
+  <div class="topline"><span>Avance</span><strong id="progressText">0 de 20 respondidas</strong></div>
+  <div class="progress-line"><span id="progressBar"></span></div>
+  <button class="btn primary" id="startBtn">Comenzar cuestionario</button>
+ </section>
+ <section id="quiz" hidden>
+  <div class="topline"><span id="counter">Pregunta 1 de 20</span><span id="dimCounter">Dimensión 1 de 4</span></div>
+  <div class="progress-line"><span id="quizProgress"></span></div>
+  <div id="questionHost"></div>
+  <div class="actions no-print">
+   <button class="btn secondary" id="prevBtn">Anterior</button>
+   <button class="btn primary" id="checkBtn">Verificar respuesta</button>
+   <button class="btn primary" id="nextBtn" disabled>Siguiente</button>
+  </div>
+  <p class="small" id="statusText" aria-live="polite"></p>
+ </section>
+ <section id="results">
+  <div class="result-card">
+   <div class="dimension">Informe de resultados</div>
+   <h2>Desempeño en lectura crítica</h2>
+   <div class="score" id="score">0/20</div>
+   <div class="level" id="level"></div>
+   <p id="summary"></p>
+   <h3>Resultados por dimensión</h3>
+   <div id="dimensionResults"></div>
+   <h3>Interpretación y recomendaciones</h3>
+   <div id="recommendations"></div>
+   <p class="small">La puntuación representa el desempeño en este cuestionario. No constituye, por sí sola, un diagnóstico definitivo ni una medición psicométrica validada del pensamiento crítico.</p>
+   <div class="actions no-print">
+    <button class="btn primary" onclick="window.print()">Imprimir / guardar PDF</button>
+    <button class="btn secondary" id="reviewBtn">Revisar respuestas</button>
+    <button class="btn ghost" id="restartBtn">Reiniciar</button>
+   </div>
+  </div>
+ </section>
+</main>
+<footer>Cuestionario de lectura crítica · Versión B</footer>
+<script>
+const dimensions=[
+ "Interpretación e inferencia",
+ "Análisis argumentativo",
+ "Evaluación de evidencias",
+ "Reflexión y juicio crítico"
+];
+const questions=[
+{d:0,t:"single",p:"Una universidad publica el siguiente aviso: “El 78 % de quienes participaron en nuestros cursos virtuales obtuvo una calificación aprobatoria. Por tanto, la virtualidad garantiza mejores aprendizajes”. ¿Qué interpretación es más rigurosa?",h:"Distingue entre un dato descriptivo y una conclusión causal.",o:[
+["a","El porcentaje demuestra que la modalidad virtual causa mejores aprendizajes.",false,"El dato no compara modalidades ni controla otras variables."],
+["b","El resultado describe a quienes participaron, pero no demuestra que la modalidad garantice el aprendizaje.",true,"Correcto. El dato informa sobre un grupo, pero no permite establecer causalidad ni generalizar sin más información."],
+["c","La cifra carece de valor porque proviene de una universidad.",false,"La procedencia institucional no invalida automáticamente el dato; hay que examinar el método y el contexto."],
+["d","El 22 % restante necesariamente abandonó el curso.",false,"No se informa qué ocurrió con ese porcentaje; pudo reprobar, no presentar la evaluación u otra situación."]
+],a:"b"},
+{d:0,t:"single",p:"Lee esta afirmación: “Aunque la biblioteca digital amplió el acceso a publicaciones, varios estudiantes continúan teniendo dificultades para distinguir artículos científicos de contenidos de opinión”. ¿Qué idea se infiere mejor?",h:"Busca una conclusión compatible con las dos partes de la afirmación.",o:[
+["a","La disponibilidad de publicaciones elimina las desigualdades académicas.",false,"El texto no sostiene que el acceso haya eliminado las desigualdades."],
+["b","El acceso a información debe acompañarse de capacidades para evaluarla.",true,"Correcto. La afirmación diferencia disponibilidad de información y competencia para valorarla."],
+["c","Los contenidos de opinión no deben consultarse en la universidad.",false,"El texto no prohíbe esos contenidos; plantea distinguirlos de los artículos científicos."],
+["d","Las bibliotecas digitales reducen la calidad de la lectura.",false,"No se establece esa relación."]
+],a:"b"},
+{d:0,t:"single",p:"En un ensayo se lee: “La ciudad amplió sus ciclovías; sin embargo, los accidentes de ciclistas aumentaron durante el mismo periodo”. ¿Qué puede concluirse a partir de esa información?",h:"La coincidencia temporal no explica por sí sola las causas.",o:[
+["a","Las ciclovías provocaron el aumento de accidentes.",false,"Es una inferencia causal no justificada por la información disponible."],
+["b","La ampliación de ciclovías fue inútil.",false,"No se presentan datos sobre uso, seguridad por kilómetro ni otros beneficios."],
+["c","Ambos fenómenos ocurrieron en el mismo periodo, pero se necesitan más datos para explicar su relación.",true,"Correcto. Es la conclusión que respeta los límites de la evidencia."],
+["d","Los ciclistas incumplieron las normas de tránsito.",false,"No hay información sobre conductas ni responsabilidades."]
+],a:"c"},
+{d:0,t:"single",p:"Un texto sostiene: “La automatización puede reducir tareas repetitivas, pero también exige que los trabajadores desarrollen nuevas competencias”. ¿Cuál es el sentido global?",h:"Identifica la relación entre beneficio y exigencia.",o:[
+["a","La automatización produce únicamente desempleo.",false,"El texto no presenta una consecuencia única ni absoluta."],
+["b","La automatización ofrece oportunidades y plantea retos de adaptación.",true,"Correcto. La idea integra las dos partes del enunciado."],
+["c","La formación profesional deja de ser necesaria.",false,"El texto sugiere precisamente la necesidad de nuevas competencias."],
+["d","Las tareas repetitivas son siempre más importantes que las creativas.",false,"No se establece esa comparación."]
+],a:"b"},
+{d:0,t:"single",p:"Una columna afirma: “No todos los estudiantes que usan inteligencia artificial aprenden menos; el efecto depende de cómo la incorporan a sus actividades”. ¿Qué lectura evita tergiversar el planteamiento?",h:"Atiende a la expresión “no todos” y a la condición final.",o:[
+["a","La inteligencia artificial perjudica el aprendizaje en cualquier circunstancia.",false,"La afirmación rechaza una generalización absoluta."],
+["b","El uso de IA no tiene ningún efecto sobre el aprendizaje.",false,"El texto no afirma ausencia de efecto, sino que depende de la forma de uso."],
+["c","El impacto del uso de IA puede variar según las prácticas de los estudiantes.",true,"Correcto. Esta interpretación conserva el carácter condicionado de la afirmación."],
+["d","Solo los estudiantes con bajo rendimiento utilizan IA.",false,"No se menciona el rendimiento previo."]
+],a:"c"},
+{d:1,t:"single",p:"Argumento: “Debemos prohibir los teléfonos en todas las clases porque un estudiante se distrajo ayer con el suyo”. ¿Cuál es la principal debilidad?",h:"Examina si un caso individual justifica una regla general.",o:[
+["a","Generalización apresurada a partir de un caso aislado.",true,"Correcto. Un ejemplo particular no basta para justificar una prohibición universal."],
+["b","Apelación a la autoridad.",false,"No se cita a una autoridad."],
+["c","Falso dilema.",false,"No se presentan dos alternativas excluyentes."],
+["d","Uso de estadísticas irrelevantes.",false,"No se emplean estadísticas."]
+],a:"a"},
+{d:1,t:"single",p:"Una investigadora afirma: “La propuesta debe aceptarse porque fue elaborada por una persona reconocida en el campo”. ¿Qué información sería más pertinente para evaluar el argumento?",h:"La reputación puede ser relevante, pero no sustituye el examen del contenido.",o:[
+["a","El número de seguidores de la investigadora en redes sociales.",false,"La popularidad no permite evaluar la solidez de la propuesta."],
+["b","Los métodos, datos y razones que sustentan la propuesta.",true,"Correcto. La evaluación debe centrarse en la justificación y la evidencia."],
+["c","La universidad donde estudió, sin revisar la propuesta.",false,"La formación puede aportar contexto, pero no demuestra que el argumento sea válido."],
+["d","La cantidad de veces que se ha compartido la afirmación.",false,"La difusión no equivale a validez."]
+],a:"b"},
+{d:1,t:"single",p:"En un debate se afirma: “Quienes cuestionan el examen estandarizado simplemente quieren que los estudiantes no estudien”. ¿Qué recurso argumentativo aparece?",h:"Observa si se responde a la postura o se desacredita a quienes la sostienen.",o:[
+["a","Refutación basada en datos.",false,"No se aportan datos ni se responde a las razones del cuestionamiento."],
+["b","Ataque a la persona o caricaturización de la postura contraria.",true,"Correcto. Se atribuye una motivación descalificadora en lugar de examinar los argumentos."],
+["c","Analogía pertinente.",false,"No se establece una comparación."],
+["d","Deducción válida.",false,"No hay una cadena deductiva."]
+],a:"b"},
+{d:1,t:"multi",p:"Un informe propone ampliar el horario de una biblioteca porque “en una encuesta a 40 estudiantes, 32 dijeron que la usarían por la noche”. ¿Qué aspectos deberían examinarse antes de aceptar la propuesta? Selecciona todas las opciones pertinentes.",h:"Evalúa representatividad, formulación de la pregunta y correspondencia entre intención y comportamiento.",o:[
+["a","Cómo se seleccionaron los 40 estudiantes.",true,"La selección influye en la posibilidad de generalizar los resultados."],
+["b","Si la pregunta distinguía entre intención y uso efectivo.",true,"Decir que se usaría un servicio no garantiza que se utilice."],
+["c","Si la encuesta incluyó estudiantes de distintos programas y jornadas.",true,"La diversidad de participantes puede afectar la representatividad."],
+["d","Si el informe tiene una portada atractiva.",false,"El diseño no determina la validez de la evidencia."]
+],a:["a","b","c"]},
+{d:1,t:"single",p:"Una noticia concluye: “El proyecto fracasó porque recibió críticas en redes sociales”. ¿Qué pregunta crítica cuestiona mejor esa conclusión?",h:"Diferencia la reacción pública de los indicadores de resultado del proyecto.",o:[
+["a","¿Cuántos comentarios negativos recibió la publicación?",false,"Puede ser un dato descriptivo, pero no basta para evaluar el éxito del proyecto."],
+["b","¿Qué criterios de éxito se definieron y qué resultados verificables obtuvo el proyecto?",true,"Correcto. La evaluación requiere criterios explícitos e indicadores pertinentes."],
+["c","¿Quién publicó primero la noticia?",false,"La cronología de publicación no resuelve la relación entre críticas y fracaso."],
+["d","¿La noticia tiene una fotografía?",false,"La presencia de una fotografía no evalúa la conclusión."]
+],a:"b"},
+{d:2,t:"single",p:"Un gráfico muestra que las ventas de bebidas frías y las consultas por insolación aumentan durante los mismos meses. ¿Qué afirmación está mejor respaldada?",h:"Considera una posible variable común que influya en ambos fenómenos.",o:[
+["a","Comprar bebidas frías causa insolación.",false,"La relación temporal no respalda esa causalidad."],
+["b","La insolación provoca necesariamente la compra de bebidas frías.",false,"Tampoco se demuestra esta dirección causal."],
+["c","La temperatura podría influir en ambos fenómenos, pero se requiere un análisis adicional.",true,"Correcto. Se reconoce una posible variable explicativa sin presentarla como certeza."],
+["d","Los dos fenómenos no guardan ninguna relación posible.",false,"La información no permite descartar toda relación."]
+],a:"c"},
+{d:2,t:"single",p:"Un artículo cita un estudio realizado con 18 voluntarios de una sola institución y concluye que sus resultados representan a toda la población universitaria. ¿Cuál es la principal limitación?",h:"Examina tamaño y procedencia de la muestra frente al alcance de la conclusión.",o:[
+["a","La muestra puede ser insuficiente y poco representativa para esa generalización.",true,"Correcto. El alcance de la conclusión excede lo que permite sostener la muestra descrita."],
+["b","Los estudios con voluntarios nunca aportan información útil.",false,"Pueden ser útiles, aunque sus límites deben reconocerse."],
+["c","La institución debe tener más de una sede.",false,"El número de sedes no es el criterio central."],
+["d","Los resultados solo son válidos si todos los participantes obtienen lo mismo.",false,"La variabilidad no invalida un estudio; debe analizarse apropiadamente."]
+],a:"a"},
+{d:2,t:"single",p:"Una publicación presenta una cifra sin indicar fecha, población estudiada ni fuente. ¿Cuál es la decisión más responsable?",h:"Piensa qué datos permiten rastrear y contextualizar una afirmación cuantitativa.",o:[
+["a","Compartirla si coincide con una opinión personal.",false,"La coincidencia con una opinión no verifica la cifra."],
+["b","Descartarla automáticamente como falsa.",false,"La ausencia de referencias impide verificarla, pero no demuestra por sí sola que sea falsa."],
+["c","Buscar la fuente original y comprobar fecha, población y método.",true,"Correcto. La trazabilidad y el contexto son esenciales para valorar el dato."],
+["d","Usarla sin cambios si aparece en varias cuentas.",false,"La repetición puede provenir de una misma fuente no verificada."]
+],a:"c"},
+{d:2,t:"single",p:"Dos estudios sobre una estrategia pedagógica presentan resultados diferentes. ¿Qué debería hacerse antes de decidir cuál es más convincente?",h:"Compara condiciones, métodos y características de los participantes.",o:[
+["a","Elegir el estudio con el resultado más favorable.",false,"Un resultado favorable no implica mayor calidad metodológica."],
+["b","Comparar diseño, muestra, instrumentos, contexto y limitaciones de ambos.",true,"Correcto. La evaluación exige revisar la calidad y comparabilidad de la evidencia."],
+["c","Promediar las conclusiones sin revisar los datos.",false,"No es adecuado combinar resultados sin analizar sus métodos y diferencias."],
+["d","Dar prioridad al estudio publicado más recientemente, sin más criterios.",false,"La actualidad es un criterio posible, pero no reemplaza la evaluación metodológica."]
+],a:"b"},
+{d:2,t:"tf",p:"Verdadero o falso: “Si una afirmación aparece en una revista académica, ya no es necesario revisar sus métodos ni sus fuentes”.",h:"La publicación académica aporta un filtro, pero no elimina la evaluación crítica.",o:[
+["v","Verdadero",false,"La publicación no garantiza que todo estudio esté libre de limitaciones o errores."],
+["f","Falso",true,"Correcto. También es necesario examinar métodos, datos, fuentes y limitaciones."]
+],a:"f"},
+{d:3,t:"single",p:"Un estudiante encuentra dos explicaciones opuestas sobre una política pública. ¿Qué conducta evidencia mejor pensamiento crítico?",h:"Evita decidir únicamente por afinidad ideológica o emocional.",o:[
+["a","Aceptar la explicación que coincide con sus ideas previas.",false,"La confirmación de creencias no constituye evaluación suficiente."],
+["b","Comparar las razones, evidencias, supuestos y posibles intereses de ambas fuentes.",true,"Correcto. La comparación razonada permite una valoración más autónoma."],
+["c","Rechazar ambas sin leerlas.",false,"El rechazo anticipado tampoco es una evaluación crítica."],
+["d","Elegir la explicación más difundida.",false,"La popularidad no demuestra mayor solidez."]
+],a:"b"},
+{d:3,t:"single",p:"Después de leer un texto convincente, una estudiante descubre un dato que contradice su conclusión inicial. ¿Cuál sería la respuesta intelectualmente más sólida?",h:"Considera la disposición a revisar una postura ante nueva evidencia.",o:[
+["a","Ignorar el dato para mantener coherencia con su primera opinión.",false,"Esto prioriza la consistencia personal sobre la evidencia."],
+["b","Cambiar de opinión inmediatamente, sin comprobar el dato.",false,"La apertura no implica aceptar información sin verificarla."],
+["c","Verificar el dato y, si es fiable, revisar o matizar su conclusión.",true,"Correcto. Combina apertura intelectual y evaluación de la fuente."],
+["d","Descalificar al autor que presenta el dato.",false,"Atacar al autor no resuelve la contradicción."]
+],a:"c"},
+{d:3,t:"single",p:"Una recomendación universitaria afirma que todos los programas deben adoptar una misma metodología porque funcionó en una carrera. ¿Qué juicio es más razonable?",h:"Piensa en las diferencias entre disciplinas, objetivos y contextos.",o:[
+["a","La recomendación es válida para cualquier programa sin adaptación.",false,"La eficacia en un contexto no garantiza transferencia universal."],
+["b","La experiencia puede ser un punto de partida, pero debe evaluarse su pertinencia en cada programa.",true,"Correcto. Se reconoce el valor del antecedente y la necesidad de contextualizar."],
+["c","La metodología debe rechazarse porque proviene de otra carrera.",false,"La procedencia no basta para descartarla."],
+["d","Todas las carreras tienen objetivos y estudiantes idénticos.",false,"La afirmación desconoce diferencias disciplinares y contextuales."]
+],a:"b"},
+{d:3,t:"tf",p:"Verdadero o falso: “Reconocer que una conclusión tiene límites es una señal de debilidad argumentativa”.",h:"La precisión sobre el alcance de una conclusión suele aumentar su rigor.",o:[
+["v","Verdadero",false,"Reconocer límites no debilita necesariamente un argumento; evita afirmar más de lo que la evidencia permite."],
+["f","Falso",true,"Correcto. Delimitar el alcance de una conclusión es una práctica de rigor intelectual."]
+],a:"f"},
+{d:3,t:"single",p:"Un equipo debe recomendar una solución a un problema de transporte. Hay datos incompletos y grupos afectados con intereses distintos. ¿Qué procedimiento es más defendible?",h:"Busca un proceso transparente que explicite incertidumbres y criterios.",o:[
+["a","Elegir la alternativa más rápida y presentar la decisión como indiscutible.",false,"Ignora incertidumbres y posibles impactos diferenciados."],
+["b","Posponer indefinidamente cualquier decisión hasta tener información perfecta.",false,"La información perfecta puede ser inalcanzable; es posible decidir con cautela y transparencia."],
+["c","Comparar alternativas con criterios explícitos, consultar a los grupos afectados y declarar las incertidumbres.",true,"Correcto. Integra análisis, consideración de perspectivas y juicio responsable."],
+["d","Adoptar la alternativa que prefiera la mayoría, sin revisar consecuencias.",false,"La preferencia mayoritaria no sustituye el análisis de impactos."]
+],a:"c"},
+{d:3,t:"single",p:"Al terminar una investigación, el equipo encuentra que su hipótesis inicial no se confirma. ¿Qué decisión refleja mejor integridad intelectual?",h:"El propósito de investigar es producir conocimiento, no proteger una hipótesis.",o:[
+["a","Modificar los resultados para que coincidan con la hipótesis.",false,"Eso distorsiona la evidencia y compromete la integridad académica."],
+["b","Informar los resultados obtenidos, discutir posibles explicaciones y reconocer limitaciones.",true,"Correcto. La conclusión debe seguir a los datos, incluso cuando contradicen la expectativa inicial."],
+["c","Ocultar el estudio porque no confirmó lo esperado.",false,"Un resultado no confirmatorio también puede aportar conocimiento."],
+["d","Afirmar que la hipótesis quedó demostrada parcialmente sin explicar por qué.",false,"La conclusión debe estar justificada y ser transparente."]
+],a:"b"}
+];
+const state={answers:{},checked:{},index:0,started:false};
+const $=id=>document.getElementById(id);
+function sameSet(x,y){return [...x].sort().join("|")===[...y].sort().join("|")}
+function selectedValues(q){return [...document.querySelectorAll('input[name="answer"]:checked')].map(x=>x.value)}
+function isCorrect(q,vals){return q.t==="multi"?sameSet(vals,q.a):vals.length===1&&vals[0]===q.a}
+function updateProgress(){
+ const n=Object.keys(state.answers).length;
+ $("progressText").textContent=`${n} de 20 respondidas`;
+ $("progressBar").style.width=(n/20*100)+"%";
+ $("quizProgress").style.width=(n/20*100)+"%";
+}
+function render(){
+ const q=questions[state.index], saved=state.answers[state.index]||[];
+ $("counter").textContent=`Pregunta ${state.index+1} de 20`;
+ $("dimCounter").textContent=`Dimensión ${q.d+1} de 4`;
+ $("questionHost").innerHTML="";
+ const card=document.createElement("article");card.className="question-card";
+ card.innerHTML=`<div class="dimension">${dimensions[q.d]}</div><h2>${q.p}</h2><div class="options" id="options"></div><details class="hint"><summary>Ver pista de lectura</summary><p>${q.h}</p></details><div class="feedback" id="feedback" aria-live="polite"></div>`;
+ const opts=card.querySelector("#options");
+ q.o.forEach((op,i)=>{
+  const lab=document.createElement("label");lab.className="option";
+  const input=document.createElement("input");input.type=q.t==="multi"?"checkbox":"radio";input.name="answer";input.value=op[0];input.checked=saved.includes(op[0]);
+  input.addEventListener("change",()=>{state.answers[state.index]=selectedValues(q);delete state.checked[state.index];$("feedback").classList.remove("show");$("checkBtn").disabled=false;$("nextBtn").disabled=true;});
+  const span=document.createElement("span");span.textContent=op[1];lab.append(input,span);opts.append(lab);
+ });
+ $("questionHost").append(card);
+ $("prevBtn").disabled=state.index===0;
+ $("nextBtn").textContent=state.index===19?"Ver resultados":"Siguiente";
+ $("nextBtn").disabled=!state.checked[state.index];
+ $("checkBtn").disabled=!!state.checked[state.index];
+ $("statusText").textContent=state.checked[state.index]?"Respuesta verificada. Puedes avanzar o revisar la pregunta.":"";
+ updateProgress();
+ if(state.checked[state.index])showFeedback(q,state.answers[state.index]||[]);
+}
+function showFeedback(q,vals){
+ const correct=isCorrect(q,vals),fb=$("feedback");fb.classList.add("show");
+ let html=`<strong>${correct?"Respuesta correcta":"Respuesta por revisar"}</strong>${correct?"Has identificado la interpretación o el criterio mejor sustentado.":"Revisa la explicación de las opciones y contrasta tu elección con la evidencia del enunciado."}<ul>`;
+ q.o.forEach(op=>{const chosen=vals.includes(op[0]);html+=`<li><b>${op[1]}:</b> ${op[2]} ${chosen?"(tu selección)":""}</li>`});
+ fb.innerHTML=html+"</ul>";
+ document.querySelectorAll(".option").forEach((el,i)=>{const op=q.o[i];if(op[3]){} if(op[2]&&op[0]===q.a)el.classList.add("correct");if(vals.includes(op[0])&&!op[2])el.classList.add("incorrect");});
+}
+$("startBtn").addEventListener("click",()=>{$("intro").hidden=true;$("quiz").hidden=false;state.started=true;render();});
+$("checkBtn").addEventListener("click",()=>{
+ const q=questions[state.index],vals=selectedValues(q);
+ if(!vals.length){$("statusText").textContent="Selecciona una respuesta antes de verificar.";return;}
+ state.answers[state.index]=vals;state.checked[state.index]=true;showFeedback(q,vals);
+ $("checkBtn").disabled=true;$("nextBtn").disabled=false;$("statusText").textContent="Respuesta verificada.";
+ updateProgress();
+});
+$("prevBtn").addEventListener("click",()=>{if(state.index>0){state.index--;render()}});
+$("nextBtn").addEventListener("click",()=>{if(state.index<19){state.index++;render()}else showResults()});
+function scoreOf(q,i){return isCorrect(q,state.answers[i]||[])?1:0}
+function levelFor(s){if(s<=7)return["Inicial","Se observan dificultades para interpretar información, reconocer argumentos y justificar conclusiones."];if(s<=11)return["En desarrollo","Se identifican algunas ideas y razones, pero el análisis de evidencias y la evaluación de inferencias todavía son inconsistentes."];if(s<=15)return["Competente","Se interpretan textos y argumentos de manera generalmente adecuada, aunque hay oportunidades para profundizar en la evaluación de fuentes y supuestos."];if(s<=18)return["Avanzado","Se evidencia un desempeño sólido al interpretar, analizar y valorar información; conviene afinar la evaluación de matices y límites."];return["Sobresaliente","Se evidencia un desempeño muy sólido y consistente en las dimensiones evaluadas. Mantén la práctica de justificar y revisar tus juicios."]}
+function showResults(){
+ $("quiz").hidden=true;$("results").style.display="block";
+ const total=questions.reduce((s,q,i)=>s+scoreOf(q,i),0),lev=levelFor(total);
+ $("score").textContent=`${total}/20`; $("level").textContent=lev[0];$("summary").textContent=lev[1];
+ let dhtml="",weak=[];
+ dimensions.forEach((d,di)=>{const ids=questions.map((q,i)=>q.d===di?i:-1).filter(i=>i>=0),n=ids.reduce((s,i)=>s+scoreOf(questions[i],i),0),pct=n/ids.length*100;
+ dhtml+=`<div class="dimension-result"><div class="topline"><span>${d}</span><span>${n}/${ids.length}</span></div><div class="bar"><span style="width:${pct}%"></span></div></div>`;
+ if(pct<60)weak.push(d);
+ });
+ $("dimensionResults").innerHTML=dhtml;
+ let rec=weak.length?`<p class="result-note"><b>Prioridad de mejora:</b> ${weak.join("; ")}. Practica la identificación de tesis y supuestos, la distinción entre correlación y causalidad, la evaluación de fuentes y la formulación de conclusiones proporcionales a la evidencia.</p>`:"<p class=\"result-note\"><b>Consolidación:</b> no se observan dimensiones por debajo del 60 %. Continúa trabajando con textos que presenten perspectivas contrapuestas y evidencia ambigua.</p>";
+ rec+=`<p>Para profundizar, selecciona artículos de distintas disciplinas y registra: tesis central, razones, evidencia, supuestos, contraargumentos y límites de las conclusiones.</p>`;
+ $("recommendations").innerHTML=rec;
+ $("results").scrollIntoView({behavior:"smooth"});
+}
+$("reviewBtn").addEventListener("click",()=>{$("results").style.display="none";$("quiz").hidden=false;state.index=0;render();});
+$("restartBtn").addEventListener("click",()=>{if(confirm("¿Deseas borrar las respuestas y comenzar de nuevo?")){state.answers={};state.checked={};state.index=0;$("results").style.display="none";$("intro").hidden=false;$("quiz").hidden=true;updateProgress();}});
+</script>
+</body></html>

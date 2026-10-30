@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cuestionario interactivo de 20 preguntas para evaluar habilidades de lectura crítica y pensamiento crítico en estudiantes universitarios.">
+<title>Pensamiento crítico | Lectura crítica universitaria</title>
+<style>
+:root{
+  --ink:#17243a;--muted:#607086;--blue:#2457a6;--cyan:#16a6a1;
+  --paper:#f4f7fb;--card:#fff;--line:#dce4ef;--good:#16794b;
+  --bad:#b43b3b;--softgood:#e9f7ef;--softbad:#fff0ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#edf3fc,#f4fbfa);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.container{width:min(920px,94%);margin:32px auto 56px}
+header{background:linear-gradient(120deg,#173b78,#087f88);color:white;padding:30px clamp(20px,5vw,44px);
+  border-radius:22px;box-shadow:0 14px 35px #173b7825}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.85}
+h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.12;margin:10px 0}
+header p{max-width:720px;margin:12px 0 0;color:#e8f5ff}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.pill{background:#ffffff20;border:1px solid #ffffff40;padding:6px 11px;border-radius:999px;font-size:.82rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);
+  margin-top:20px;box-shadow:0 8px 24px #1c35500b}
+h2{font-size:1.25rem;margin:0 0 10px}
+.instructions{color:var(--muted);margin:0}
+.progress-head{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.9rem;margin-bottom:9px}
+.progress{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.tag{font-size:.76rem;font-weight:750;color:#24518b;background:#edf4ff;padding:5px 9px;border-radius:7px}
+.question{font-size:1.14rem;font-weight:700;margin:12px 0 18px}
+.options{display:grid;gap:10px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  cursor:pointer;transition:.15s;background:white}
+.option:hover{border-color:#8caedb;background:#f8fbff}
+.option:has(input:checked){border-color:var(--blue);background:#eef5ff}
+.option input{margin-top:5px;accent-color:var(--blue);flex:0 0 auto}
+.option span{flex:1}
+.option.disabled{cursor:default}
+.feedback{margin-top:17px;border-radius:12px;padding:14px 16px;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--softgood);border:1px solid #b9e3ca;color:#145d3b}
+.feedback.bad{background:var(--softbad);border:1px solid #f0c5c1;color:#8d2929}
+.feedback strong{display:block;margin-bottom:4px}
+.hint{margin-top:12px}
+.hint summary{color:var(--blue);font-weight:700;cursor:pointer}
+.hint p{color:var(--muted);margin:8px 0 0;font-size:.92rem}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:.95rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#31445e}
+#finish{display:none}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0}
+.score-number{font-size:2.6rem;font-weight:850;color:var(--blue);line-height:1}
+.level{font-weight:800;font-size:1.05rem}
+.result-intro{color:var(--muted)}
+.dimension{margin:18px 0}
+.dimension-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:.92rem}
+.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:15px;background:#f1f6fc;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin:22px 0}
+@media(max-width:560px){.container{margin:14px auto 35px}header{border-radius:16px}.panel{border-radius:14px}.actions button{flex:1}}
+@media print{body{background:white}.container{width:100%;margin:0}header{box-shadow:none}.actions,#quizPanel,footer{display:none!important}#finish{display:block!important}.panel{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="eyebrow">Evaluación universitaria · Instrumento diagnóstico</div>
+  <h1>Pensamiento crítico: lectura crítica</h1>
+  <p>Cuestionario interactivo de 20 preguntas para valorar la interpretación, el análisis de argumentos, la evaluación de evidencias y la elaboración de juicios fundamentados.</p>
+  <div class="meta"><span class="pill">20 preguntas</span><span class="pill">Nivel universitario</span><span class="pill">Retroalimentación por respuesta</span></div>
+</header>
+
+<section class="panel" id="intro">
+  <h2>Antes de comenzar</h2>
+  <p class="instructions">Lee cada situación con atención. Selecciona una respuesta en las preguntas de opción única, marca todas las respuestas pertinentes en la pregunta de selección múltiple y decide si las afirmaciones de verdadero/falso son correctas. Al responder cada pregunta recibirás retroalimentación. Al finalizar verás tu resultado global y el desempeño por dimensión.</p>
+  <p class="instructions" style="margin-top:10px"><strong>Duración sugerida:</strong> 20–30 minutos. Cada pregunta vale un punto; en la pregunta de selección múltiple se requiere seleccionar el conjunto completo correcto para obtener el punto.</p>
+  <div class="actions"><span></span><button class="primary" id="startBtn">Comenzar cuestionario</button></div>
+</section>
+
+<section class="panel" id="quizPanel" hidden>
+  <div class="progress-head"><span id="progressText">Pregunta 1 de 20</span><span id="progressPct">5 %</span></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="tags"><span class="tag" id="dimensionTag"></span><span class="tag" id="typeTag"></span></div>
+  <div class="question" id="questionText"></div>
+  <div class="options" id="options"></div>
+  <details class="hint"><summary>Ver pista para razonar</summary><p id="hintText"></p></details>
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+  <div class="actions">
+    <button class="secondary" id="prevBtn">Anterior</button>
+    <button class="primary" id="checkBtn">Comprobar respuesta</button>
+    <button class="primary" id="nextBtn" hidden>Siguiente</button>
+  </div>
+</section>
+
+<section class="panel" id="finish">
+  <h2>Resultados de la evaluación</h2>
+  <p class="result-intro">Tu resultado representa el desempeño en estas tareas de lectura crítica. Revisa tanto el puntaje global como las dimensiones.</p>
+  <div class="score"><div class="score-number" id="scoreNumber">0/20</div><div><div class="level" id="levelName"></div><div class="result-intro" id="levelDescription"></div></div></div>
+  <h2 style="margin-top:25px">Desempeño por dimensión</h2>
+  <div id="dimensionResults"></div>
+  <div class="result-note" id="recommendation"></div>
+  <div class="actions"><button class="secondary" id="reviewBtn">Revisar respuestas</button><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="restartBtn">Repetir cuestionario</button></div>
+</section>
+<footer>Cuestionario diagnóstico de lectura crítica · Uso educativo</footer>
+</div>
+
+<script>
+const dimensions = [
+  "Interpretación e inferencia",
+  "Análisis argumentativo",
+  "Evaluación de evidencias",
+  "Reflexión y juicio crítico"
+];
+const questions = [
+{d:0,t:"Opción única",q:"Un texto afirma: «La educación virtual ha ampliado el acceso a la universidad, pero no ha eliminado las desigualdades educativas». ¿Cuál es la interpretación más adecuada?",h:"Presta atención a la relación que establece la conjunción «pero».",o:[
+["A","La educación virtual ha eliminado las desigualdades.","Esta interpretación contradice explícitamente la segunda parte del enunciado."],
+["B","La educación virtual amplía oportunidades, aunque persisten desigualdades.","Reconoce las dos ideas relacionadas por el contraste: ampliación del acceso y persistencia de desigualdades."],
+["C","La educación virtual no ha mejorado el acceso universitario.","El texto afirma expresamente que el acceso se ha ampliado."],
+["D","La desigualdad educativa es consecuencia de la virtualidad.","El texto no establece una relación causal entre virtualidad y desigualdad."]],a:["B"]},
+{d:0,t:"Opción única",q:"Un artículo señala: «Aunque los estudiantes disponen de abundantes recursos digitales, muchos presentan dificultades para evaluar la confiabilidad de la información». ¿Qué se puede inferir?",h:"Distingue entre tener información disponible y saber utilizarla críticamente.",o:[
+["A","El acceso a información garantiza su comprensión.","La afirmación distingue precisamente entre disponer de información y saber evaluarla."],
+["B","Las dificultades digitales se deben a la falta de dispositivos.","El texto no menciona carencias de dispositivos como explicación."],
+["C","Tener acceso a información no garantiza desarrollar habilidades críticas.","Es una inferencia coherente con la diferencia entre disponibilidad de recursos y capacidad de evaluación."],
+["D","Los recursos digitales perjudican necesariamente el aprendizaje.","No se establece que los recursos sean perjudiciales ni que exista una consecuencia necesaria."]],a:["C"]},
+{d:0,t:"Opción única",q:"Lee la afirmación: «La mayoría de los estudiantes que utilizan inteligencia artificial obtienen mejores calificaciones; por tanto, la IA mejora el aprendizaje». ¿Qué supuesto necesita examinarse para aceptar esa conclusión?",h:"Examina si la variable observada representa realmente aquello que se pretende demostrar.",o:[
+["A","Que las mejores calificaciones reflejan necesariamente mayor aprendizaje.","Esta relación no está demostrada: el rendimiento en una evaluación no equivale automáticamente a aprendizaje profundo."],
+["B","Que todos los estudiantes utilizan la misma computadora.","La igualdad de dispositivos no es el supuesto central que conecta las calificaciones con el aprendizaje."],
+["C","Que la inteligencia artificial funciona mediante algoritmos.","Es una característica general de la tecnología, pero no justifica la conclusión sobre aprendizaje."],
+["D","Que los estudiantes prefieren estudiar en grupo.","La preferencia por el estudio grupal no es necesaria para establecer la relación planteada."]],a:["A"]},
+{d:0,t:"Opción única",q:"Un informe indica: «El 70 % de los encuestados considera que las clases presenciales favorecen la interacción». ¿Cuál es la conclusión más rigurosa?",h:"No conviertas una percepción declarada en una medición objetiva de aprendizaje.",o:[
+["A","El 70 % de todos los universitarios aprende más presencialmente.","La encuesta mide una opinión sobre interacción, no aprendizaje, y tampoco demuestra representatividad de todos los universitarios."],
+["B","La modalidad presencial siempre es superior.","La afirmación introduce una generalización absoluta que los datos no permiten."],
+["C","La interacción presencial garantiza mejores resultados académicos.","No se ha medido ni demostrado una relación causal con los resultados académicos."],
+["D","El 70 % de los encuestados expresa una percepción favorable sobre la interacción presencial.","Esta conclusión conserva exactamente la población, el porcentaje y la variable que mide el informe."]],a:["D"]},
+{d:0,t:"Opción única",q:"Un autor escribe: «La universidad debe enseñar a cuestionar las respuestas de la inteligencia artificial, no solamente a utilizarlas». ¿Qué propósito comunicativo predomina?",h:"Identifica qué postura busca promover el autor.",o:[
+["A","Describir el funcionamiento técnico de la IA.","No se explican mecanismos técnicos ni componentes de los sistemas."],
+["B","Defender una orientación educativa basada en el juicio crítico.","El autor propone una prioridad pedagógica y argumenta implícitamente a favor de ella."],
+["C","Informar sobre la historia de la educación universitaria.","No se presenta información histórica."],
+["D","Demostrar que la IA debe prohibirse en las universidades.","Cuestionar sus respuestas no equivale a proponer su prohibición."]],a:["B"]},
+{d:1,t:"Opción única",q:"Considera este argumento: «Debemos incorporar programas de alfabetización informacional en la universidad porque los estudiantes necesitan distinguir entre información confiable y desinformación». ¿Cuál es la tesis principal?",h:"Diferencia la propuesta que se defiende de la razón que se ofrece para justificarla.",o:[
+["A","La desinformación circula en internet.","Es una problemática relacionada, pero no constituye la propuesta principal."],
+["B","Los estudiantes utilizan internet frecuentemente.","El argumento no aporta esa información como conclusión."],
+["C","La universidad debe incorporar programas de alfabetización informacional.","Es la propuesta que el argumento pretende justificar mediante la necesidad de distinguir información confiable."],
+["D","Toda la información digital es poco confiable.","El argumento no afirma que toda la información digital sea falsa o poco confiable."]],a:["C"]},
+{d:1,t:"Opción única",q:"Un investigador afirma: «El 90 % de mis compañeros utiliza una aplicación para estudiar; por consiguiente, esa aplicación es la mejor herramienta para todos los universitarios». ¿Qué problema presenta el razonamiento?",h:"Examina el tamaño y la representatividad del grupo utilizado para llegar a una conclusión general.",o:[
+["A","Generalización apresurada a partir de una muestra limitada.","La experiencia de un grupo reducido no permite concluir que la herramienta sea la mejor para toda la población universitaria."],
+["B","Contradicción entre dos afirmaciones equivalentes.","No aparecen dos afirmaciones que se contradigan entre sí."],
+["C","Apelación a una autoridad científica.","El argumento no utiliza la opinión de una autoridad como respaldo."],
+["D","Confusión entre una definición y un ejemplo.","El problema no es conceptual, sino la extrapolación injustificada de una muestra."]],a:["A"]},
+{d:1,t:"Opción única",q:"Un texto sostiene: «Quienes se oponen al uso de IA en educación quieren regresar a una universidad sin tecnología». ¿Cuál es el principal problema argumentativo?",h:"Observa si el autor representa fielmente la posición de quienes discrepan.",o:[
+["A","Presenta datos estadísticos insuficientes.","El defecto principal no es la ausencia de estadísticas, sino la representación distorsionada de la postura contraria."],
+["B","Confunde una correlación con una causalidad.","No se establece una relación estadística entre dos variables."],
+["C","Utiliza una analogía incompleta.","No se plantea una comparación analógica."],
+["D","Construye un hombre de paja al simplificar la postura contraria.","Atribuye a quienes cuestionan la IA una posición extrema que no necesariamente sostienen, facilitando su refutación."]],a:["D"]},
+{d:1,t:"Selección múltiple",q:"Un artículo propone que el uso de inteligencia artificial en la universidad debe evaluarse críticamente. ¿Cuáles de las siguientes preguntas contribuyen directamente a examinar la solidez de sus argumentos? Selecciona todas las pertinentes.",h:"Piensa en los criterios que permiten evaluar la calidad lógica y empírica de una argumentación.",o:[
+["A","¿Qué evidencias respaldan las afirmaciones principales?","Examinar las evidencias permite determinar si las conclusiones tienen fundamento."],
+["B","¿Qué posibles explicaciones alternativas existen?","Considerar explicaciones alternativas ayuda a detectar conclusiones prematuras y razonamientos incompletos."],
+["C","¿Qué tan atractivo resulta el diseño gráfico del artículo?","El diseño puede influir en la presentación, pero no demuestra la validez de los argumentos."],
+["D","¿Qué supuestos y limitaciones reconoce el autor?","Identificar supuestos y limitaciones permite valorar el alcance real de las conclusiones."]],a:["A","B","D"]},
+{d:1,t:"Opción única",q:"Un texto afirma: «Si los estudiantes desarrollan pensamiento crítico, podrán evaluar mejor las fuentes. Laura evalúa mejor las fuentes; por tanto, Laura tiene desarrollado el pensamiento crítico». ¿Qué error lógico aparece?",h:"Recuerda que una relación condicional no siempre puede invertirse.",o:[
+["A","Negación del antecedente.","No se niega la condición inicial del razonamiento."],
+["B","Afirmación del consecuente.","De que el pensamiento crítico favorezca la evaluación de fuentes no se deduce que toda persona que evalúe bien las fuentes necesariamente tenga desarrollado ese pensamiento."],
+["C","Modus ponens correctamente aplicado.","El razonamiento no afirma la condición inicial para deducir su consecuencia."],
+["D","Falsa equivalencia entre dos conceptos opuestos.","No se equiparan conceptos opuestos; se invierte indebidamente una implicación lógica."]],a:["B"]},
+{d:2,t:"Opción única",q:"Un estudiante encuentra dos publicaciones sobre los efectos de la IA en el aprendizaje. La primera es una investigación revisada por pares con metodología explícita; la segunda es una publicación anónima sin referencias. ¿Qué decisión es más razonable?",h:"La credibilidad de una fuente depende de varios criterios, no solamente de la conclusión que presenta.",o:[
+["A","Aceptar ambas porque presentan opiniones diferentes.","La diversidad de opiniones no elimina la necesidad de evaluar la calidad de las fuentes."],
+["B","Descartar ambas porque ninguna puede garantizar certeza absoluta.","La ausencia de certeza absoluta no implica que todas las fuentes tengan el mismo valor probatorio."],
+["C","Dar mayor peso inicial a la investigación, examinando también sus limitaciones.","La revisión académica y la metodología explícita aportan criterios de confiabilidad, sin convertir la publicación en infalible."],
+["D","Aceptar la publicación anónima porque podría contener información novedosa.","La novedad potencial no sustituye la verificación de autoría, evidencias y metodología."]],a:["C"]},
+{d:2,t:"Opción única",q:"Un estudio encuentra que los estudiantes que utilizan IA obtienen mejores calificaciones que quienes no la utilizan. Sin embargo, no controla las diferencias en conocimientos previos, tiempo de estudio ni acompañamiento docente. ¿Qué puede concluirse?",h:"Distingue entre observar que dos variables coinciden y demostrar que una produce la otra.",o:[
+["A","La IA es la causa comprobada de las mejores calificaciones.","Sin controlar variables relevantes no se puede atribuir causalidad a la IA."],
+["B","La IA carece de cualquier relación con el rendimiento.","Los resultados muestran una asociación observada, aunque no permitan determinar su causa."],
+["C","Los conocimientos previos no influyen en el rendimiento.","Precisamente son una variable que debería controlarse para interpretar los resultados."],
+["D","Existe una asociación observada, pero no está demostrada una relación causal.","Es la conclusión que respeta los límites del diseño descrito."]],a:["D"]},
+{d:2,t:"Opción única",q:"Una noticia utiliza el titular «La IA destruye el pensamiento de los universitarios», pero el estudio citado únicamente encontró que algunos estudiantes delegaban ciertas tareas cognitivas. ¿Qué debe hacer un lector crítico?",h:"Distingue entre el lenguaje utilizado para atraer lectores y lo que realmente muestran los resultados.",o:[
+["A","Aceptar el titular porque resume la intención del estudio.","El titular debe contrastarse con los resultados reales y no aceptarse por su fuerza expresiva."],
+["B","Comparar el titular con los resultados y verificar si representa fielmente el alcance del estudio.","La lectura crítica exige examinar si la formulación periodística exagera o distorsiona la evidencia original."],
+["C","Descartar el estudio porque la noticia utiliza lenguaje alarmista.","Un titular problemático no invalida automáticamente la investigación original."],
+["D","Concluir que toda utilización de IA reduce las capacidades cognitivas.","El hallazgo descrito no permite generalizar a todos los usos ni a todos los estudiantes."]],a:["B"]},
+{d:2,t:"Opción única",q:"Una investigación sobre hábitos de lectura encuesta a 35 estudiantes de una sola carrera universitaria y concluye que todos los universitarios del país prefieren los textos digitales. ¿Cuál es la principal limitación?",h:"Examina la correspondencia entre la población estudiada y la población sobre la que se concluye.",o:[
+["A","La investigación no utiliza suficientes gráficos.","La presentación gráfica no determina la representatividad de la muestra."],
+["B","La encuesta no permite conocer opiniones individuales.","Una encuesta puede recoger opiniones individuales, aunque tenga otras limitaciones."],
+["C","La muestra puede no ser representativa de la población nacional.","Una muestra pequeña y concentrada en una carrera no justifica una generalización nacional."],
+["D","La investigación no demuestra que los textos digitales existan.","La existencia de los textos digitales no es lo que se está investigando."]],a:["C"]},
+{d:2,t:"Verdadero / falso",q:"Una fuente publicada en una revista científica y sometida a revisión por pares puede contener errores metodológicos o conclusiones discutibles.",h:"Piensa en la diferencia entre un mecanismo de control académico y una garantía absoluta de verdad.",o:[
+["V","Verdadero","La revisión por pares constituye un mecanismo de evaluación de calidad, pero no garantiza que una investigación sea infalible."],
+["F","Falso","La revisión por pares no elimina completamente los errores ni garantiza la validez de todas las conclusiones."]],a:["V"]},
+{d:3,t:"Opción única",q:"Un autor sostiene que los estudiantes que cuestionan las respuestas de la IA son menos competentes porque tardan más en completar sus tareas. ¿Qué aspecto debe examinarse críticamente?",h:"Examina qué significa realmente ser competente y qué indicadores permiten medirlo.",o:[
+["A","Si la rapidez de ejecución es un indicador suficiente de competencia.","La rapidez es una dimensión del desempeño, pero no mide por sí sola la comprensión, el razonamiento o la calidad de las decisiones."],
+["B","Si los estudiantes deberían evitar formular preguntas.","El texto no demuestra que preguntar sea un comportamiento negativo."],
+["C","Si la IA puede generar respuestas rápidamente.","La velocidad del sistema no demuestra la competencia del estudiante."],
+["D","Si todas las tareas universitarias tienen la misma duración.","La duración uniforme de las tareas no es el supuesto central que debe cuestionarse."]],a:["A"]},
+{d:3,t:"Opción única",q:"Una columna de opinión afirma que la educación tradicional es superior a la educación basada en proyectos porque el autor obtuvo excelentes resultados con el primer modelo. ¿Qué sesgo podría influir en esta argumentación?",h:"Piensa en cómo las creencias previas pueden influir en la interpretación de experiencias.",o:[
+["A","Sesgo de confirmación.","Puede estar seleccionando o interpretando su experiencia de manera que respalde una creencia previa, aunque habría que examinar más evidencia para confirmarlo."],
+["B","Sesgo de supervivencia.","No se describe una selección de casos exitosos que excluya sistemáticamente los fracasos."],
+["C","Sesgo de medición.","No se menciona un instrumento de medición defectuoso."],
+["D","Sesgo de selección aleatoria.","No se describe un procedimiento de selección aleatoria."]],a:["A"]},
+{d:3,t:"Opción única",q:"Dos artículos presentan conclusiones opuestas sobre el uso de teléfonos móviles en el aula. Uno utiliza un estudio experimental y el otro una encuesta de opinión. ¿Cuál es la estrategia crítica más adecuada?",h:"No compares únicamente las conclusiones: examina cómo se obtuvo la evidencia.",o:[
+["A","Elegir el artículo que coincide con las propias experiencias.","La coincidencia con experiencias personales no constituye un criterio suficiente de validez."],
+["B","Dar siempre prioridad a la encuesta porque recoge más opiniones.","El número de opiniones no determina por sí solo la calidad de la evidencia ni su adecuación a la pregunta."],
+["C","Rechazar ambos artículos porque sus conclusiones son contradictorias.","La discrepancia puede responder a diferencias metodológicas, poblacionales o de las variables estudiadas."],
+["D","Comparar objetivos, muestras, métodos, variables y limitaciones de ambas investigaciones.","La evaluación metodológica permite determinar qué explica las diferencias y cuál evidencia resulta pertinente para cada conclusión."]],a:["D"]},
+{d:3,t:"Verdadero / falso",q:"Cuando un texto presenta datos numéricos, sus conclusiones quedan automáticamente demostradas y no requieren examinar la metodología.",h:"Distingue entre disponer de cifras y contar con evidencia metodológicamente sólida.",o:[
+["V","Verdadero","Los datos numéricos no garantizan por sí solos la validez de una conclusión; también deben examinarse su origen, medición y análisis."],
+["F","Falso","La metodología permite determinar si los datos fueron obtenidos y analizados adecuadamente y si respaldan realmente la conclusión."]],a:["F"]},
+{d:3,t:"Opción única",q:"Lee el siguiente fragmento: «La incorporación de inteligencia artificial en las universidades es inevitable. Sin embargo, su presencia no garantiza una mejor educación. El verdadero desafío consiste en diseñar experiencias de aprendizaje que promuevan la autonomía intelectual, el cuestionamiento y la evaluación de evidencias». ¿Cuál es la conclusión central más consistente con el texto?",h:"Relaciona la idea de inevitabilidad tecnológica con el desafío pedagógico que plantea el autor.",o:[
+["A","Las universidades deben incorporar IA sin modificar sus estrategias pedagógicas.","El texto plantea que el desafío está precisamente en diseñar experiencias de aprendizaje, no en conservarlas sin cambios."],
+["B","La calidad educativa depende exclusivamente de la tecnología disponible.","El fragmento diferencia la presencia tecnológica de la calidad del aprendizaje."],
+["C","La integración educativa de la IA debe acompañarse de estrategias que desarrollen capacidades intelectuales.","Esta interpretación recoge la distinción entre disponibilidad tecnológica y formación de capacidades intelectuales."],
+["D","La autonomía intelectual se desarrolla evitando el uso de tecnologías digitales.","El texto no propone evitar la tecnología, sino orientar pedagógicamente su incorporación."]],a:["C"]}
+];
+
+let index=0, answers=Array(questions.length).fill(null), checked=Array(questions.length).fill(false);
+const $=id=>document.getElementById(id);
+$("startBtn").addEventListener("click",()=>{$("intro").hidden=true;$("quizPanel").hidden=false;render()});
+function selectedValues(){
+  return [...document.querySelectorAll('#options input:checked')].map(x=>x.value);
+}
+function render(){
+  const q=questions[index], pct=Math.round((index+1)/questions.length*100);
+  $("progressText").textContent=`Pregunta ${index+1} de ${questions.length}`;
+  $("progressPct").textContent=pct+" %";$("progressBar").style.width=pct+"%";
+  $("dimensionTag").textContent=dimensions[q.d];$("typeTag").textContent=q.t;
+  $("questionText").textContent=q.q;$("hintText").textContent=q.h;
+  $("options").innerHTML="";
+  q.o.forEach(([v,label,fb])=>{
+    const lab=document.createElement("label");lab.className="option"+(checked[index]?" disabled":"");
+    const inp=document.createElement("input");inp.type=q.t==="Selección múltiple"?"checkbox":"radio";
+    inp.name="answer";inp.value=v;inp.checked=answers[index] ? answers[index].includes(v):false;inp.disabled=checked[index];
+    const span=document.createElement("span");span.textContent=label;
+    lab.append(inp,span);$("options").append(lab);
+  });
+  $("feedback").className="feedback";$("feedback").innerHTML="";
+  if(checked[index]) showFeedback();
+  $("checkBtn").hidden=checked[index];$("nextBtn").hidden=!checked[index];
+  $("nextBtn").textContent=index===questions.length-1?"Ver resultados":"Siguiente";
+  $("prevBtn").disabled=index===0;
+}
+function check(){
+  const vals=selectedValues();
+  if(!vals.length){alert("Selecciona una respuesta antes de continuar.");return}
+  answers[index]=vals;checked[index]=true;render();
+}
+function showFeedback(){
+  const q=questions[index],chosen=answers[index]||[];
+  const correct=q.a.every(v=>chosen.includes(v))&&chosen.every(v=>q.a.includes(v));
+  const box=$("feedback");box.className="feedback show "+(correct?"good":"bad");
+  const title=document.createElement("strong");title.textContent=correct?"Respuesta correcta":"Respuesta por revisar";
+  box.append(title);
+  q.o.forEach(([v,label,fb])=>{
+    const p=document.createElement("p");p.style.margin="7px 0";
+    const mark=document.createElement("b");mark.textContent=v+" · "+label+": ";
+    p.append(mark,document.createTextNode(fb));box.append(p);
+  });
+  if(q.t==="Selección múltiple"){
+    const p=document.createElement("p");p.style.marginBottom="0";
+    p.textContent="Para obtener el punto debías seleccionar todas las opciones válidas y ninguna incorrecta.";box.append(p);
+  }
+}
+$("checkBtn").addEventListener("click",check);
+$("prevBtn").addEventListener("click",()=>{if(index>0){index--;render()}});
+$("nextBtn").addEventListener("click",()=>{if(index<questions.length-1){index++;render()}else showResults()});
+function getScore(){
+  let total=0,byDim=dimensions.map(()=>({score:0,total:0}));
+  questions.forEach((q,i)=>{
+    byDim[q.d].total++;
+    const a=answers[i]||[];
+    const ok=checked[i]&&q.a.every(v=>a.includes(v))&&a.every(v=>q.a.includes(v));
+    if(ok){total++;byDim[q.d].score++}
+  });
+  return {total,byDim};
+}
+function showResults(){
+  const {total,byDim}=getScore();$("quizPanel").hidden=true;$("finish").style.display="block";
+  $("scoreNumber").textContent=total+"/20";
+  let level,desc,rec;
+  if(total<=7){level="Nivel inicial";desc="Se observan dificultades importantes en las habilidades examinadas.";rec="Prioriza la identificación de ideas principales, la elaboración de inferencias sencillas y la distinción entre afirmaciones y evidencias. Trabaja con textos breves y preguntas guiadas."}
+  else if(total<=11){level="En desarrollo";desc="Reconoces información explícita, pero necesitas consolidar el análisis y la valoración crítica.";rec="Practica la identificación de tesis, razones y supuestos. Contrasta las conclusiones con los datos y revisa la representatividad de las fuentes."}
+  else if(total<=15){level="Competente";desc="Presentas un desempeño satisfactorio en las habilidades de lectura crítica evaluadas.";rec="Profundiza en la evaluación de argumentos complejos, las explicaciones alternativas y los límites metodológicos de las investigaciones."}
+  else if(total<=18){level="Avanzado";desc="Demuestras capacidad consistente para interpretar, contrastar y cuestionar información.";rec="Fortalece la transferencia de estas habilidades a textos científicos, argumentativos y de divulgación, atendiendo a sesgos y supuestos implícitos."}
+  else{level="Sobresaliente";desc="Evidencias un desempeño alto en las tareas de lectura crítica de este cuestionario.";rec="Continúa con textos de mayor complejidad, argumentos contrapuestos y evaluación de evidencia interdisciplinaria."}
+  $("levelName").textContent=level;$("levelDescription").textContent=desc;
+  $("dimensionResults").innerHTML="";
+  byDim.forEach((x,i)=>{
+    const wrap=document.createElement("div");wrap.className="dimension";
+    const top=document.createElement("div");top.className="dimension-top";
+    const name=document.createElement("span");name.textContent=dimensions[i];
+    const val=document.createElement("span");val.textContent=`${x.score}/${x.total}`;
+    top.append(name,val);
+    const bar=document.createElement("div");bar.className="bar";
+    const fill=document.createElement("div");fill.style.width=(x.score/x.total*100)+"%";bar.append(fill);
+    wrap.append(top,bar);$("dimensionResults").append(wrap);
+  });
+  $("recommendation").innerHTML="<strong>Orientación de aprendizaje</strong><br>"+rec+
+    "<br><br><small>Este resultado es diagnóstico y corresponde únicamente a las 20 tareas incluidas. No constituye, por sí solo, una medición exhaustiva ni un diagnóstico psicométrico del pensamiento crítico.</small>";
+}
+$("reviewBtn").addEventListener("click",()=>{$("finish").style.display="none";$("quizPanel").hidden=false;index=0;render()});
+$("restartBtn").addEventListener("click",()=>{index=0;answers=Array(questions.length).fill(null);checked=Array(questions.length).fill(false);$("finish").style.display="none";$("intro").hidden=false});
+</script>
+</body>
+</html>

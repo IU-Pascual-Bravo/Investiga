@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Cuestionario interactivo de pensamiento crítico matemático para estudiantes universitarios.">
+<title>Razonamiento matemático | Evaluación del pensamiento crítico</title>
+<style>
+:root{--navy:#102342;--blue:#2457d6;--cyan:#20b8c8;--ink:#17243a;--muted:#627087;--paper:#f4f7fb;--line:#dce4ef;--good:#16835d;--bad:#bd4545;--gold:#f0b544}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#102342,#1c4c8e 65%,#167d91);color:white;padding:36px 20px 30px}
+.hero,.wrap{max-width:960px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.75rem;font-weight:800;color:#9deaf0}
+h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.1;margin:10px 0}.lead{max-width:720px;color:#e3edf9;margin:12px 0 0}
+main{max-width:960px;margin:24px auto;padding:0 18px 50px}
+.panel,.question-card,.result-card{background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 26px #16345b0b}
+.panel{padding:20px 22px;margin-bottom:18px}.meta{display:flex;flex-wrap:wrap;gap:10px 22px;color:var(--muted);font-size:.9rem}
+.pill{display:inline-flex;background:#eaf1ff;color:#244da9;padding:4px 10px;border-radius:99px;font-size:.78rem;font-weight:800}
+.progress-line{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden;margin:14px 0 4px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.question-card{padding:24px;margin:18px 0}.qtop{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:.85rem}
+h2{font-size:1.25rem;line-height:1.35;margin:15px 0 10px}.scenario{background:#f3f7fc;border-left:4px solid var(--cyan);padding:13px 15px;border-radius:8px;margin:12px 0}
+.options{display:grid;gap:10px;margin-top:18px}.option{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:.15s;background:#fff}
+.option:hover{border-color:#8ca9e8;background:#f8faff}.option input{margin-top:5px;accent-color:var(--blue);transform:scale(1.1)}.option.selected{border-color:var(--blue);background:#f1f5ff}
+.option.correct{border-color:var(--good);background:#effaf5}.option.incorrect{border-color:var(--bad);background:#fff3f2}
+.feedback{display:none;margin-top:15px;padding:14px;border-radius:12px;font-size:.94rem}.feedback.show{display:block}.feedback.good{background:#effaf5;color:#155d45}.feedback.bad{background:#fff3f2;color:#8e3333}
+.feedback strong{display:block;margin-bottom:4px}
+.controls{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin:18px 0}
+button{border:0;border-radius:11px;padding:12px 19px;font:inherit;font-weight:750;cursor:pointer}
+.primary{background:var(--blue);color:#fff}.primary:hover{background:#1746bb}.secondary{background:#e9eef6;color:#263750}.secondary:disabled{opacity:.45;cursor:not-allowed}
+.small{font-size:.85rem;color:var(--muted)}.hidden{display:none!important}
+#results{margin-top:22px}.result-card{padding:24px;margin:16px 0}.score{font-size:3rem;font-weight:850;line-height:1;color:var(--blue)}
+.level{display:inline-block;margin:8px 0;padding:6px 12px;border-radius:99px;background:#eaf1ff;color:#244da9;font-weight:800}
+.dimension{margin:16px 0}.dim-head{display:flex;justify-content:space-between;gap:12px;font-weight:750}.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+ul{padding-left:22px}li{margin:6px 0}.note{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+footer{text-align:center;color:var(--muted);padding:20px;font-size:.82rem}
+@media(max-width:600px){header{padding:28px 18px}.question-card{padding:18px}.panel{padding:17px}.controls button{flex:1}}
+@media print{body{background:#fff}.controls,header{print-color-adjust:exact}.question-card{break-inside:avoid}.primary,.secondary{display:none}}
+</style>
+</head>
+<body>
+<header><div class="hero">
+<div class="eyebrow">Evaluación universitaria · Matemáticas</div>
+<h1>Pensar matemáticamente</h1>
+<p class="lead">Cuestionario interactivo para valorar cómo interpretas información cuantitativa, analizas relaciones, construyes inferencias y justificas decisiones ante problemas.</p>
+</div></header>
+<main>
+<section class="panel" id="intro">
+<div class="meta"><span>20 preguntas</span><span>Selección múltiple · Una respuesta</span><span>Tiempo estimado: 25–35 min</span></div>
+<p><strong>Instrucciones.</strong> Lee cada situación, selecciona la alternativa que mejor sustenta una conclusión y pulsa «Comprobar». Recibirás retroalimentación inmediata. Al finalizar verás tu desempeño global y por dimensión.</p>
+<p class="small">Esta actividad evalúa el razonamiento demostrado en estas situaciones; no constituye por sí sola un diagnóstico integral de pensamiento crítico.</p>
+<button class="primary" id="startBtn">Comenzar evaluación</button>
+</section>
+<section id="quiz" class="hidden" aria-live="polite">
+<div class="panel">
+<div class="meta"><strong id="progressText">Pregunta 1 de 20</strong><span id="answeredText">0 respondidas</span><span id="dimensionText" class="pill"></span></div>
+<div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+<div class="question-card">
+<div class="qtop"><span id="qnumber">PREGUNTA 01</span><span id="qtag" class="pill"></span></div>
+<h2 id="question"></h2>
+<div class="scenario hidden" id="scenario"></div>
+<div class="options" id="options"></div>
+<div class="feedback" id="feedback" role="status"></div>
+<div class="controls">
+<button class="secondary" id="prevBtn">← Anterior</button>
+<div><button class="secondary" id="checkBtn">Comprobar</button> <button class="primary" id="nextBtn" disabled>Siguiente →</button></div>
+</div>
+</div>
+</section>
+<section id="results" class="hidden" aria-live="polite"></section>
+</main>
+<footer>Instrumento formativo · Razonamiento matemático y pensamiento crítico</footer>
+<script>
+const questions = [
+{d:"Interpretación",q:"Una universidad informa que la matrícula pasó de 800 a 1.000 estudiantes. ¿Cuál interpretación es correcta?",s:"El informe compara dos periodos consecutivos y no aporta más datos sobre la población universitaria.",o:["La matrícula aumentó un 20 % respecto al valor inicial.","La matrícula aumentó un 25 % respecto al valor inicial.","La matrícula aumentó 200 % respecto al valor inicial.","La matrícula se duplicó."],a:1,
+f:["El aumento relativo es 200/800 = 0,25, es decir, 25 %.","El aumento absoluto es 200; al dividirlo por 800 se obtiene 0,25 = 25 %.","200 estudiantes más no equivalen a un aumento del 200 %; el porcentaje se calcula sobre 800.","1.000 no es el doble de 800; el doble sería 1.600."],
+why:"Distingue entre cambio absoluto y cambio relativo: el porcentaje se calcula respecto al valor inicial."},
+{d:"Interpretación",q:"En una encuesta, 60 de 150 estudiantes prefieren clases híbridas. ¿Qué conclusión está respaldada por esos datos?",o:["La mayoría de todos los universitarios prefiere clases híbridas.","El 40 % de los estudiantes encuestados prefiere clases híbridas.","El 60 % de los estudiantes encuestados prefiere clases híbridas.","La modalidad híbrida mejora el rendimiento académico."],a:1,
+f:["60 de 150 representa 40 %, no una mayoría.","60 ÷ 150 = 0,40; por tanto, corresponde al 40 % de la muestra encuestada.","El número 60 es una frecuencia absoluta, no el porcentaje.","La encuesta mide preferencias, no rendimiento ni causalidad."],
+why:"Interpreta una proporción y limita la conclusión a la población efectivamente observada."},
+{d:"Interpretación",q:"Un gráfico muestra que las ventas subieron de 40 a 50 unidades, pero el eje vertical comienza en 38 y no en cero. ¿Qué precaución es más pertinente?",o:["El gráfico demuestra que las ventas crecieron más del doble.","El crecimiento porcentual es necesariamente incorrecto.","El truncamiento del eje puede exagerar visualmente el cambio.","No se puede calcular el aumento con los valores indicados."],a:2,
+f:["Pasar de 40 a 50 no duplica las ventas; solo las aumenta en 10 unidades.","El truncamiento afecta la percepción visual, no la validez del cálculo con los valores numéricos.","Al no comenzar en cero, la diferencia puede parecer visualmente mayor en relación con la escala mostrada.","Los valores permiten calcular el cambio absoluto y relativo aunque el eje esté truncado."],
+why:"Evalúa cómo una decisión de representación puede influir en la interpretación visual de datos."},
+{d:"Interpretación",q:"Una nota final se calcula con 30 % de tareas, 20 % de talleres y 50 % de examen. Un estudiante obtiene 4,0; 3,5 y 4,5, respectivamente. ¿Cuál es su nota ponderada?",o:["4,00","4,10","4,15","4,25"],a:2,
+f:["La media simple sería 4,00, pero no respeta los pesos asignados.","La suma ponderada es 1,20 + 0,70 + 2,25 = 4,15.","La suma ponderada correcta es 4,15; 4,10 no resulta de aplicar los tres pesos.","4,25 asigna un peso excesivo a una de las calificaciones."],
+why:"Traduce ponderaciones a operaciones y conserva el peso relativo de cada componente."},
+{d:"Análisis",q:"Dos planes de telefonía tienen estos costos: A cobra $20.000 fijos más $500 por GB; B cobra $10.000 fijos más $750 por GB. ¿A partir de cuántos GB el plan A cuesta menos que B?",o:["Más de 40 GB","Más de 20 GB","Exactamente 40 GB","Menos de 40 GB"],a:0,
+f:["En 40 GB ambos cuestan $40.000; A no es más barato en ese punto.","La comparación se obtiene de 20.000 + 500x < 10.000 + 750x, que exige x > 40.","A 40 GB ambos planes cuestan lo mismo, no menos.","Por debajo de 40 GB, A tiene un costo mayor."],
+why:"Modela dos costos lineales y analiza una desigualdad, no solo el punto de equilibrio."},
+{d:"Análisis",q:"Un conjunto de datos contiene los valores 5, 6, 6, 7 y 31. ¿Qué medida describe mejor el valor central sin quedar tan afectada por el 31?",o:["La media, 11","La mediana, 6","El rango, 26","La moda, 5"],a:1,
+f:["La media es 11 y se desplaza hacia arriba por el valor extremo 31.","Ordenados los datos, el valor central es 6; la mediana es robusta frente a ese extremo.","El rango mide dispersión, no el centro de los datos.","La moda es 6, porque aparece dos veces; 5 aparece una sola vez."],
+why:"Selecciona una medida estadística acorde con la presencia de un valor atípico."},
+{d:"Análisis",q:"Una investigación encuentra correlación positiva entre horas de estudio y calificación. ¿Qué análisis adicional ayudaría más a evaluar si estudiar más produce mejores resultados?",o:["Afirmar causalidad porque la correlación es positiva.","Eliminar los datos con pocas horas de estudio.","Examinar variables de confusión y, si es viable, diseñar una comparación controlada.","Convertir ambas variables a porcentajes."],a:2,
+f:["La correlación por sí sola no demuestra causalidad.","Eliminar observaciones puede sesgar el análisis y no controla explicaciones alternativas.","Factores como conocimientos previos, asistencia o apoyo pueden influir; un diseño controlado ayuda a aislar el efecto.","Cambiar la escala no resuelve el problema de causalidad."],
+why:"Diferencia asociación de causalidad e identifica la necesidad de controlar explicaciones alternativas."},
+{d:"Análisis",q:"Una caja contiene 3 bolas rojas, 2 azules y 5 verdes. Se extrae una bola al azar. ¿Cuál afirmación compara correctamente las probabilidades?",o:["P(roja) = P(azul), porque ambas son colores individuales.","P(verde) = 1/2 y es mayor que P(roja).","P(azul) = 1/4 y es menor que P(roja).","P(roja) = 3/5."],a:1,
+f:["Las cantidades son distintas: roja 3/10 y azul 2/10.","Hay 5 verdes de 10 bolas: 5/10 = 1/2, mayor que 3/10.","La probabilidad azul es 2/10 = 1/5, no 1/4; por eso la afirmación no es correcta."],
+why:"Compara frecuencias relativas y reconoce la necesidad de verificar cada afirmación."},
+{d:"Análisis",q:"Una muestra de 20 estudiantes tiene promedio de 3,8. Se incorpora una estudiante con nota 5,0. ¿Qué ocurre con el promedio?",o:["Disminuye porque aumenta el tamaño de la muestra.","Permanece igual porque 5,0 es una nota válida.","Aumenta porque 5,0 está por encima del promedio anterior.","Aumenta exactamente 1,2 puntos."],a:2,
+f:["Agregar un dato por encima del promedio eleva la media, no la reduce.","Para conservar el promedio, el nuevo dato tendría que ser igual a 3,8.","Un valor superior a la media previa empuja la nueva media hacia arriba.","El aumento depende del tamaño de la muestra: la nueva media es (20×3,8 + 5)/21 ≈ 3,86."],
+why:"Razona sobre el efecto de incorporar una observación en una media."},
+{d:"Inferencia",q:"Una universidad reporta que el 70 % de quienes completaron un curso aprobó un examen. No informa cuántos abandonaron el curso. ¿Qué se puede inferir con rigor?",o:["El 70 % de todos los inscritos aprobó.","El curso causó una mejora en el aprendizaje.","Entre quienes completaron el curso, el 70 % aprobó.","El 30 % de los inscritos reprobó."],a:2,
+f:["El dato se refiere a quienes completaron, no necesariamente a todos los inscritos.","No hay grupo de comparación ni medición previa que permita atribuir causalidad.","Es la conclusión que respeta exactamente el denominador informado.","Quienes no completaron no pueden clasificarse automáticamente como reprobados."],
+why:"Controla el alcance de una inferencia y evita generalizar más allá de los datos."},
+{d:"Inferencia",q:"En una población, el 2 % tiene una condición. Una prueba detecta correctamente al 90 % de quienes la tienen y da positivo por error en el 10 % de quienes no la tienen. Si una persona da positivo, ¿qué conclusión es más razonable sin hacer el cálculo exacto?",o:["Es casi seguro que tiene la condición, porque la sensibilidad es 90 %.","La probabilidad de tenerla no puede superar el 2 %.","El positivo requiere considerar la baja prevalencia y los falsos positivos; no basta con la sensibilidad.","La prueba no aporta información alguna."],a:2,
+f:["La sensibilidad no es la probabilidad de tener la condición después de un positivo.","La probabilidad posterior puede superar la prevalencia inicial, aunque no se determina solo con ese límite.","Con una prevalencia baja, los falsos positivos pueden ser numerosos respecto de los verdaderos positivos; se requiere combinar tasas y prevalencia.","La prueba sí aporta información, pero debe interpretarse con la tasa base y los errores."],
+why:"Aplica razonamiento bayesiano cualitativo: considera tasas base y falsos positivos."},
+{d:"Inferencia",q:"Una población de bacterias se duplica cada hora. Si inicialmente hay 200 bacterias, ¿cuántas habrá después de 4 horas bajo ese modelo?",o:["800","1.600","2.000","3.200"],a:3,
+f:["800 corresponde a dos duplicaciones, no cuatro.","Después de tres duplicaciones habría 1.600; falta una duplicación.","El crecimiento no es lineal: no se suman 200 bacterias por hora.","200 × 2⁴ = 200 × 16 = 3.200."],
+why:"Reconoce un patrón exponencial y diferencia duplicación de incremento constante."},
+{d:"Inferencia",q:"En un mapa a escala 1:50.000, dos edificios están separados por 6 cm. ¿Cuál es la distancia real?",o:["300 m","3 km","30 km","300 km"],a:1,
+f:["6 cm × 50.000 = 300.000 cm = 3.000 m = 3 km.","La escala indica que 1 cm representa 50.000 cm; 6 cm representan 300.000 cm, es decir, 3 km.","30 km sería diez veces la distancia calculada.","300 km sería cien veces la distancia calculada."],
+why:"Interpreta una escala y controla las conversiones de unidades."},
+{d:"Inferencia",q:"Un estudiante afirma: «Si todos los múltiplos de 4 son pares y 28 es par, entonces 28 es múltiplo de 4». ¿Qué evaluación lógica es correcta?",o:["El argumento es válido porque la conclusión es verdadera.","El argumento es inválido: ser par no garantiza ser múltiplo de 4; por ejemplo, 6.","El argumento es válido porque 4 y 28 son números pares.","El argumento es inválido porque 28 no es múltiplo de 4."],a:1,
+f:["Una conclusión verdadera no vuelve válido un razonamiento cuya forma no la garantiza.","El contraejemplo 6 es par, pero no múltiplo de 4; la propiedad no permite invertir la implicación.","Compartir la paridad no demuestra divisibilidad entre 4.","La conclusión sí es verdadera: 28 = 4 × 7. El defecto está en la forma lógica del argumento."],
+why:"Distingue la verdad de una conclusión de la validez de la inferencia que pretende justificarla."},
+{d:"Evaluación",q:"Un informe compara el rendimiento de dos grupos: uno recibió tutorías voluntarias y obtuvo promedio 4,2; el otro no recibió tutorías y obtuvo 3,7. ¿Cuál es la principal limitación para afirmar que las tutorías causaron la diferencia?",o:["La diferencia de promedios es demasiado pequeña para calcularse.","La participación voluntaria puede implicar diferencias previas entre los grupos.","Los promedios no pueden compararse entre grupos.","Un promedio mayor siempre demuestra causalidad."],a:1,
+f:["La diferencia se calcula: 4,2 − 3,7 = 0,5; el problema principal no es aritmético.","Quienes se ofrecen voluntariamente pueden diferir en motivación, tiempo u otras variables; hay posible sesgo de selección.","Los promedios sí pueden compararse descriptivamente, aunque la comparación no pruebe causalidad.","Un promedio mayor muestra una asociación observada, no necesariamente una causa."],
+why:"Evalúa el diseño de una comparación e identifica sesgo de selección."},
+{d:"Evaluación",q:"Una empresa anuncia: «Nuestro producto reduce el consumo de energía un 50 %». ¿Qué dato es indispensable para evaluar la afirmación?",o:["El color del empaque.","El precio de venta al público.","La condición de comparación, el consumo de referencia y cómo se midió.","El número de seguidores de la empresa."],a:2,
+f:["El color no permite comprobar una afirmación cuantitativa sobre consumo.","El precio puede ser relevante para una decisión de compra, pero no verifica el ahorro energético.","Sin línea base, condiciones comparables y método de medición, el 50 % carece de contexto verificable.","La popularidad no constituye evidencia de desempeño energético."],
+why:"Exige evidencia pertinente, una referencia de comparación y un método transparente."},
+{d:"Evaluación",q:"Una encuesta sobre satisfacción se respondió de forma voluntaria en la página web de una universidad. ¿Qué sesgo debe considerarse especialmente?",o:["Sesgo de autoselección: responden quienes deciden participar.","Error de redondeo: todas las respuestas son números enteros.","Sesgo de supervivencia: solo se observan graduados.","Error de conversión de unidades."],a:0,
+f:["La participación voluntaria puede atraer a personas con opiniones o experiencias más intensas, por lo que la muestra puede no representar a todos.","Que las respuestas sean enteras no implica un error de redondeo.","No se indica que la encuesta incluya únicamente graduados.","No hay cantidades físicas ni unidades que convertir."],
+why:"Examina cómo el mecanismo de selección puede distorsionar la representatividad de una muestra."},
+{d:"Evaluación",q:"Un estudiante resuelve una ecuación y obtiene x = 3. ¿Cuál es la mejor práctica para evaluar la solución?",o:["Aceptar el resultado porque parece razonable.","Sustituir x = 3 en la ecuación original y comprobar la igualdad.","Redondear x a un entero.","Comparar el resultado con el de otro estudiante sin revisar el procedimiento."],a:1,
+f:["La plausibilidad no sustituye la verificación matemática.","La sustitución en la ecuación original permite comprobar directamente si el valor satisface la condición.","Redondear puede alterar la solución y no verifica la ecuación.","La coincidencia con otra respuesta no garantiza que ambas sean correctas."],
+why:"Prioriza la verificación independiente de una conclusión matemática."},
+{d:"Argumentación",q:"Una estudiante sostiene: «La media de las notas subió, por tanto todos los estudiantes mejoraron». ¿Cuál respuesta constituye la refutación más sólida?",o:["La media nunca sirve para analizar resultados académicos.","La media puede subir aunque algunos estudiantes bajen; se necesitan distribuciones o datos individuales.","Si la media sube, necesariamente suben todas las notas.","La afirmación es falsa porque las notas no pueden promediarse."],a:1,
+f:["La media es útil, aunque no describe por sí sola cada trayectoria individual.","Un cambio en el promedio no implica que cada valor haya aumentado; la distribución puede revelar diferencias.","La media puede aumentar por cambios grandes en algunos casos aunque otros disminuyan.","Las notas numéricas pueden promediarse cuando la escala y el propósito lo permiten."],
+why:"Construye una refutación mediante un contraargumento lógico y señala evidencia adicional necesaria."},
+{d:"Argumentación",q:"Un equipo propone instalar paneles solares. La inversión inicial es alta, pero el ahorro anual estimado es constante. ¿Qué argumento permite comparar de forma más completa las alternativas?",o:["Elegirlos porque la energía solar es moderna.","Comparar únicamente el costo inicial.","Comparar costos y ahorros durante el mismo horizonte temporal, incluyendo mantenimiento y valor del dinero en el tiempo.","Elegir la alternativa con el mayor ahorro del primer mes."],a:2,
+f:["La novedad tecnológica no demuestra conveniencia económica.","El costo inicial aislado omite los ahorros y costos futuros.","Una comparación consistente considera flujos durante un horizonte común, costos de operación y, si corresponde, descuento financiero.","Un mes puede no representar el comportamiento económico de largo plazo."],
+why:"Justifica una decisión con criterios comparables y considera consecuencias a lo largo del tiempo."},
+{d:"Argumentación",q:"En un debate, alguien afirma: «La probabilidad de obtener cara en una moneda equilibrada es 1/2; como salieron cinco caras seguidas, ahora es más probable obtener sello». ¿Cuál es la respuesta matemáticamente mejor fundamentada?",o:["Sí, porque la moneda debe compensar los resultados anteriores.","No: si los lanzamientos son independientes, la probabilidad de sello sigue siendo 1/2.","Sí, porque la probabilidad de sello pasa a ser 6/7.","No: después de cinco caras, la probabilidad de sello es cero."],a:1,
+f:["La idea de compensación confunde independencia con equilibrio a largo plazo.","En una moneda equilibrada, cada lanzamiento independiente conserva P(sello) = 1/2, sin importar la secuencia anterior.","La frecuencia pasada no modifica la probabilidad del siguiente lanzamiento independiente.","Los resultados anteriores no hacen imposible que salga sello."],
+why:"Identifica la independencia de eventos y responde a la falacia del jugador con un principio explícito."}
+];
+
+let current=0, answers=Array(questions.length).fill(null), checked=Array(questions.length).fill(false);
+const $=id=>document.getElementById(id);
+$("startBtn").addEventListener("click",()=>{$("intro").classList.add("hidden");$("quiz").classList.remove("hidden");render();});
+function render(){
+ const q=questions[current], selected=answers[current];
+ $("progressText").textContent=`Pregunta ${current+1} de ${questions.length}`;
+ $("answeredText").textContent=`${answers.filter(x=>x!==null).length} respondidas`;
+ $("progressFill").style.width=`${(current/questions.length)*100}%`;
+ $("dimensionText").textContent=q.d;
+ $("qnumber").textContent=`PREGUNTA ${String(current+1).padStart(2,"0")}`;
+ $("qtag").textContent=q.d;
+ $("question").textContent=q.q;
+ $("scenario").textContent=q.s||"";
+ $("scenario").classList.toggle("hidden",!q.s);
+ $("options").innerHTML="";
+ q.o.forEach((label,i)=>{
+  const node=document.createElement("label");node.className="option";
+  if(selected===i)node.classList.add("selected");
+  if(checked[current]&&i===q.a)node.classList.add("correct");
+  if(checked[current]&&selected===i&&i!==q.a)node.classList.add("incorrect");
+  node.innerHTML=`<input type="radio" name="answer" value="${i}" ${selected===i?"checked":""} ${checked[current]?"disabled":""}><span><strong>${String.fromCharCode(65+i)}.</strong> ${label}</span>`;
+  node.addEventListener("click",()=>{if(checked[current])return;answers[current]=i;render();});
+  $("options").appendChild(node);
+ });
+ const fb=$("feedback");
+ fb.className="feedback"+(checked[current]?" show "+(selected===q.a?"good":"bad"):"");
+ fb.innerHTML=checked[current]?`<strong>${selected===q.a?"Tu respuesta es correcta.":"Revisa este razonamiento."}</strong>${q.f[selected]}<br><br><strong>Clave de pensamiento crítico:</strong> ${q.why}`:"";
+ $("checkBtn").disabled=selected===null||checked[current];
+ $("checkBtn").classList.toggle("hidden",checked[current]);
+ $("nextBtn").disabled=!checked[current];
+ $("nextBtn").textContent=current===questions.length-1?"Ver resultados":"Siguiente →";
+ $("prevBtn").disabled=current===0;
+}
+$("checkBtn").addEventListener("click",()=>{if(answers[current]!==null){checked[current]=true;render();}});
+$("prevBtn").addEventListener("click",()=>{if(current>0){current--;render();}});
+$("nextBtn").addEventListener("click",()=>{if(!checked[current])return;if(current<questions.length-1){current++;render();}else showResults();});
+function showResults(){
+ $("quiz").classList.add("hidden");$("results").classList.remove("hidden");
+ const dims=["Interpretación","Análisis","Inferencia","Evaluación","Argumentación"];
+ const desc={
+ "Interpretación":"Comprender datos, representaciones, porcentajes, escalas y condiciones del problema.",
+ "Análisis":"Descomponer situaciones, reconocer relaciones, modelos, supuestos y patrones.",
+ "Inferencia":"Derivar conclusiones justificadas, manejar incertidumbre y evitar generalizaciones indebidas.",
+ "Evaluación":"Valorar calidad de evidencia, métodos, sesgos y validez de procedimientos.",
+ "Argumentación":"Sostener o refutar afirmaciones con razones, contraejemplos y criterios pertinentes."
+ };
+ let total=0,html="";
+ const scores={};
+ dims.forEach(d=>{let subset=questions.map((q,i)=>({q,i})).filter(x=>x.q.d===d);let score=subset.filter(x=>answers[x.i]===x.q.a).length;scores[d]=score;total+=score;});
+ const pct=Math.round(total/20*100);
+ let level,interpretation,advice;
+ if(pct>=85){level="Desempeño sólido";interpretation="Demuestras un dominio consistente del razonamiento matemático en las situaciones propuestas. Tus respuestas suelen conectar datos, métodos y conclusiones.";advice="Profundiza con problemas abiertos, análisis de datos reales y justificaciones formales de soluciones.";}
+ else if(pct>=70){level="Desempeño competente";interpretation="Muestras recursos adecuados de pensamiento crítico matemático, aunque algunas decisiones requieren mayor verificación o análisis de supuestos.";advice="Practica la comprobación de resultados, la comparación de modelos y la explicación de por qué una conclusión se desprende de la evidencia.";}
+ else if(pct>=50){level="En desarrollo";interpretation="Identificas parte de la información relevante, pero conviene fortalecer la conexión entre datos, procedimientos y conclusiones.";advice="Resuelve situaciones contextualizadas paso a paso; explicita datos, supuestos, operaciones y límites de cada conclusión.";}
+ else{level="Requiere fortalecimiento";interpretation="Los resultados sugieren que necesitas más práctica para interpretar información cuantitativa y evaluar argumentos matemáticos con rigor.";advice="Comienza por porcentajes, proporciones, lectura de gráficos y verificación de procedimientos. Explica en voz alta cómo justificas cada respuesta.";}
+ html=`<div class="result-card"><div class="eyebrow" style="color:#2457d6">Informe de resultados</div><h2>Tu perfil de pensamiento crítico matemático</h2><div class="score">${total}<span style="font-size:1.2rem;color:#627087"> / 20</span></div><div class="level">${level} · ${pct}%</div><p>${interpretation}</p><p><strong>Recomendación:</strong> ${advice}</p></div>`;
+ dims.forEach(d=>{let n=scores[d],p=n/4*100;html+=`<div class="result-card dimension"><div class="dim-head"><span>${d}</span><span>${n}/4 · ${p}%</span></div><div class="bar"><span style="width:${p}%"></span></div><p class="small">${desc[d]}</p></div>`;});
+ const weakest=dims.slice().sort((a,b)=>scores[a]-scores[b]).slice(0,2);
+ html+=`<div class="result-card"><h2>Lectura de tu desempeño</h2><p><strong>Fortalezas relativas:</strong> ${dims.filter(d=>scores[d]>=3).join(", ")||"Aún no se identifica una dimensión con 3 o más aciertos."}.</p><p><strong>Prioridades de mejora:</strong> ${weakest.join(" y ")}. Revisa la retroalimentación de esas preguntas y vuelve a resolverlas justificando cada paso.</p><p class="note">Criterio de puntuación: 1 punto por respuesta correcta; 0 por respuesta incorrecta. Cada dimensión contiene 4 preguntas. Los niveles son orientativos y describen únicamente el desempeño en este cuestionario; no equivalen a una prueba psicométrica validada.</p><div class="controls"><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="restartBtn">Repetir cuestionario</button></div></div>`;
+ $("results").innerHTML=html;
+ $("restartBtn").addEventListener("click",()=>{current=0;answers=Array(20).fill(null);checked=Array(20).fill(false);$("results").classList.add("hidden");$("quiz").classList.remove("hidden");render();});
+}
+</script>
+</body></html>

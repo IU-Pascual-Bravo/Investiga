@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pensamiento crítico matemático</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;700&display=swap">
+<style>
+:root{--bg:#f4f6f1;--grid:#dde4d6;--card:#fffffe;--tx:#1c2540;--mu:#5b6478;--bd:#cfd6c8;--ac:#2d5bd0;--acs:#e6edfc;--ok:#26733f;--okb:#e4f3e8;--ko:#a8322f;--kob:#fbe9e8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a26;--grid:#1d2536;--card:#1b2333;--tx:#e8ecf5;--mu:#9aa5bd;--bd:#2f3a52;--ac:#7fa2ff;--acs:#22304f;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c}}
+:root[data-theme="dark"]{--bg:#141a26;--grid:#1d2536;--card:#1b2333;--tx:#e8ecf5;--mu:#9aa5bd;--bd:#2f3a52;--ac:#7fa2ff;--acs:#22304f;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+h1,h2{font-family:Newsreader,Georgia,serif;line-height:1.2;margin:0 0 12px}
+h1{font-size:2.1rem}h2{font-size:1.45rem}
+.sheet{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--ac);border-radius:6px;padding:22px}
+.mu{color:var(--mu)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:11px 22px;font-weight:600}
+:root[data-theme="dark"] .btn{color:#0f1626}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0f1626}}
+.bar{height:8px;background:var(--acs);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;margin-bottom:8px}
+.tag{display:inline-block;background:var(--acs);color:var(--ac);border-radius:4px;padding:2px 10px;font-size:.85rem;font-weight:600;margin:14px 0 8px}
+.q{font-size:1.1rem;margin:0 0 16px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:6px;padding:11px 14px;margin-bottom:9px}
+.opt:hover:not(:disabled){border-color:var(--ac)}
+.opt.ok{border-color:var(--ok);background:var(--okb)}
+.opt.ko{border-color:var(--ko);background:var(--kob)}
+.opt:disabled{cursor:default;color:var(--tx)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:6px;background:var(--acs)}
+.fb.ok{background:var(--okb)}.fb.ko{background:var(--kob)}
+.fb b{display:block;margin-bottom:2px}
+.hide{display:none}
+.big{font-family:Newsreader,Georgia,serif;font-size:3rem;font-weight:700;line-height:1}
+.dim{margin:14px 0}
+.dim .row{display:flex;justify-content:space-between;font-size:.95rem;margin-bottom:4px}
+.rev{border-top:1px solid var(--bd);padding-top:12px;margin-top:12px;font-size:.95rem}
+</style></head><body><main>
+<section id="intro" class="sheet">
+<h1>¿Piensas con rigor matemático?</h1>
+<p>20 preguntas para evaluar tu pensamiento crítico aplicado a las matemáticas: leer datos con cuidado, analizar argumentos, evaluar evidencia, inferir con prudencia, justificar y revisar tu propio trabajo.</p>
+<p class="mu">Recibes retroalimentación después de cada respuesta y, al final, un perfil por habilidad. Puedes usar lápiz y papel; no necesitas calculadora. Las preguntas y las opciones cambian de orden en cada intento.</p>
+<button class="btn" onclick="start()">Comenzar</button>
+</section>
+<section id="quiz" class="sheet hide">
+<div class="top"><span id="cnt"></span><span class="mu" id="pts"></span></div>
+<div class="bar"><i id="pb"></i></div>
+<span class="tag" id="dim"></span>
+<p class="q" id="q"></p>
+<div id="opts"></div>
+<div id="fb" class="fb hide"></div>
+<p><button class="btn hide" id="nx" onclick="next()">Siguiente</button></p>
+</section>
+<section id="res" class="sheet hide"></section>
+</main>
+<script>
+const D={I:"Interpretación",A:"Análisis",E:"Evaluación",N:"Inferencia",X:"Explicación",R:"Autorregulación"};
+const DS={I:"leer gráficos y cifras sin dejarte engañar por su presentación",A:"descomponer problemas y argumentos e identificar datos faltantes o fallos lógicos",E:"juzgar la solidez de la evidencia, las muestras y las demostraciones",N:"sacar conclusiones justificadas y evitar sesgos probabilísticos",X:"justificar resultados y refutar afirmaciones con razones válidas",R:"verificar la razonabilidad de tus resultados y contrastar tu trabajo"};
+const TIP={I:"Antes de concluir, pregunta qué mide cada cifra, desde dónde parte el eje y si la comparación es absoluta o relativa.",A:"Ante un problema, lista primero datos, incógnitas y supuestos; ante un argumento, separa premisas de conclusión.",E:"Pregunta siempre quién compone la muestra, cuántos casos hay y si ejemplos bastan para demostrar algo.",N:"Distingue lo que los datos permiten afirmar de lo que solo sugieren; revisa tasas base e independencia.",X:"Practica justificar con demostraciones breves y buscando contraejemplos.",R:"Haz del chequeo un hábito: estima el orden de magnitud, prueba casos simples y contrasta métodos."};
+/* [dimensión, pregunta, opciones (la correcta va primero), retroalimentación] */
+const Q=[
+["I","Un gráfico de barras muestra ventas de 100 y 105, pero el eje vertical empieza en 98, así que la segunda barra parece el triple de alta. ¿Cuál es la lectura más crítica?",["El eje truncado exagera visualmente un aumento real de solo 5 %","Las ventas se triplicaron","El gráfico es correcto porque las barras son exactas","No se puede concluir nada de un gráfico"],"Si el eje no parte de cero, la altura de las barras deja de ser proporcional al valor. El crecimiento real es 5/100 = 5 %."],
+["I","En el primer parcial aprobó el 40 % del grupo y en el segundo el 50 %. Un titular dice: “La aprobación mejoró un 10 %”. ¿Qué afirmación es más precisa?",["Subió 10 puntos porcentuales, un aumento relativo del 25 %","Subió exactamente un 10 %","Subió un 50 %","Subió un 4 %"],"La diferencia absoluta es de 10 puntos porcentuales; la relativa es 10/40 = 25 %. Confundirlas es un error muy frecuente."],
+["I","Cuatro empleados ganan 1 millón y el gerente gana 16 millones. El informe dice: “El salario promedio es de 4 millones”. ¿Qué es lo más acertado?",["El promedio es correcto, pero poco representativo; la mediana (1 millón) describe mejor al empleado típico","El informe es falso porque nadie gana 4 millones","El promedio siempre es la mejor medida del centro","La mediana también es 4 millones"],"(4·1 + 16)/5 = 4, pero un valor extremo desplaza la media. Con datos asimétricos conviene reportar también la mediana."],
+["I","En los meses con más ventas de helados también hay más casos de ahogamientos. ¿Qué conclusión es más razonable?",["Hay correlación, probablemente explicada por una tercera variable (el calor); no prueba causalidad","Los helados causan ahogamientos","Los ahogamientos aumentan las ventas de helados","No existe ninguna relación entre las variables"],"Correlación no implica causalidad: una variable de confusión (la temperatura) puede explicar ambos fenómenos."],
+["A","Un producto sube su precio un 20 % y luego se le aplica un descuento del 20 %. Comparado con el precio original, el precio final es:",["4 % menor","Igual","4 % mayor","20 % menor"],"Los porcentajes se aplican sobre bases distintas: 1,2 × 0,8 = 0,96, es decir, un 4 % menos."],
+["A","Un tren sale de A a 60 km/h y otro sale de B a 90 km/h. Se pregunta en cuánto tiempo se encuentran. ¿Qué debe hacer primero un pensador crítico?",["Identificar qué datos faltan (distancia entre A y B y sentido de marcha) antes de calcular","Sumar las velocidades y dividir entre 2","Multiplicar 60 × 90","Suponer que el tiempo es de 1 hora"],"Sin la distancia inicial y el sentido de los movimientos el problema no tiene solución única. Analizar antes de operar evita cálculos vacíos."],
+["A","Afirmación: “Todo número primo es impar”. ¿Qué basta para demostrar que es falsa?",["Un contraejemplo: el 2 es primo y es par","Comprobar que 3, 5 y 7 son impares","Encontrar muchos primos impares","Notar que la mayoría de los primos son impares"],"Para refutar una afirmación universal basta un solo contraejemplo. Los casos que la cumplen no la demuestran ni la refutan."],
+["A","Premisa: “Si llueve, el suelo se moja”. Observación: “El suelo está mojado”. Conclusión: “Entonces llovió”. Este razonamiento es:",["Inválido: afirma el consecuente; el suelo pudo mojarse por otra causa","Válido (modus ponens)","Válido (modus tollens)","Inválido porque la premisa es falsa"],"De “si P entonces Q” y Q no se puede concluir P. Es la falacia de afirmar el consecuente."],
+["E","Una prueba detecta al 99 % de los enfermos y da negativo al 99 % de los sanos. La enfermedad afecta a 1 de cada 1000 personas. Si alguien da positivo, la probabilidad aproximada de que esté enfermo es:",["Cerca del 9 %","99 %","50 %","1 %"],"En 100 000 personas hay 100 enfermos (99 positivos) y 99 900 sanos (999 falsos positivos): 99/(99 + 999) ≈ 9 %. Ignorar la tasa base es un sesgo clásico."],
+["E","Para estimar la intención de voto nacional, una encuesta en línea recoge 1 000 respuestas entre los seguidores de un candidato. ¿Cuál es la crítica más sólida?",["La muestra tiene sesgo de selección y no representa a la población","1 000 es siempre un tamaño demasiado pequeño","Las encuestas en línea nunca son válidas","No hay problema porque hay muchas respuestas"],"Importa más cómo se elige la muestra que su tamaño: una muestra sesgada no se corrige con más datos."],
+["E","Un estudiante comprueba que n² + n + 41 es primo para n = 1, 2, …, 30 y concluye que lo es para todo n. ¿Cómo se evalúa este argumento?",["No es una prueba: verificar casos no demuestra una afirmación general (falla con n = 40)","Es válido porque se probaron 30 casos","Es válido solo si se prueban 100 casos","No es válido porque 41 no es primo"],"Para n = 40: 1600 + 40 + 41 = 1681 = 41². Muchos ejemplos pueden sugerir una regla, pero no la demuestran."],
+["E","Un anuncio dice: “Este suplemento reduce el riesgo de infarto en un 50 %”. El estudio mostró que el riesgo pasó de 2 en 10 000 a 1 en 10 000. ¿Qué evaluación es más adecuada?",["La reducción relativa es del 50 %, pero la absoluta es de solo 0,01 puntos porcentuales; el anuncio magnifica el efecto","El anuncio es falso: no hay reducción","El efecto es enorme porque 50 % es mucho","No se puede calcular ninguna reducción"],"Pasar de 2 a 1 en 10 000 es una reducción relativa del 50 % y una absoluta de 0,01 %. Pide siempre ambas cifras."],
+["N","Una moneda justa cayó cara cinco veces seguidas. ¿Cuál es la probabilidad de que el siguiente lanzamiento sea sello?",["50 %: los lanzamientos son independientes","Mayor al 50 %, porque toca compensar","Menor al 50 %, porque la moneda está en racha","(1/2)⁶ ≈ 1,6 %"],"La moneda no tiene memoria. Creer que “toca” sello es la falacia del jugador; el 1,6 % es la probabilidad de la secuencia completa, no la del siguiente lanzamiento."],
+["N","Se muestra la secuencia 1, 2, 4, 8, 16, … y se pide el siguiente término. ¿Qué inferencia es más rigurosa?",["Con esos datos no es único: 32 es plausible, pero otras reglas dan 31 (regiones de un círculo con puntos)","Es 32, sin ninguna duda","Es 24, porque se suma 8","No existe ningún patrón"],"Una lista finita de términos es compatible con infinitas reglas. Lo prudente es declarar la regla supuesta y su justificación."],
+["N","Cada cliente que entra a una tienda compra con probabilidad del 40 %, de forma independiente. Si entran 3 clientes, la probabilidad de que al menos uno compre es:",["78,4 %","120 %","40 %","21,6 %"],"Se calcula por el complemento: 1 − 0,6³ = 1 − 0,216 = 0,784. Sumar 3 × 40 % da 120 %, un valor imposible que delata el error."],
+["N","Un trayecto de ida se recorre a 60 km/h y el de vuelta, por la misma ruta, a 40 km/h. La velocidad media del recorrido completo es:",["48 km/h","50 km/h","45 km/h","100 km/h"],"Con distancia d por tramo: tiempo total = d/60 + d/40 = d/24, y 2d ÷ (d/24) = 48 km/h. Promediar velocidades ignora que se pasa más tiempo en el tramo lento."],
+["X","¿Cuál es la mejor justificación de que 0,999… = 1?",["Sea x = 0,999…; entonces 10x = 9,999…; al restar, 9x = 9 y x = 1","La calculadora lo redondea a 1","Está muy cerca de 1","Todos los profesores lo afirman"],"Una buena justificación se apoya en pasos lógicos verificables, no en la autoridad, la aproximación ni una herramienta."],
+["X","Un compañero afirma que (a + b)² = a² + b² para cualesquiera números. ¿Cuál es la mejor forma de refutarlo?",["Con un contraejemplo: si a = b = 1, el lado izquierdo es 4 y el derecho es 2","Decirle que los libros dicen lo contrario","Probar con a = 0 y b = 3, que sí cumple la igualdad","Insistir hasta que se convenza"],"Un contraejemplo concreto refuta una afirmación general. Un caso que la cumple (a = 0) no prueba nada."],
+["R","Al resolver un problema de edades obtienes que la edad de una persona es −5 años. ¿Qué haces?",["Reviso el planteamiento y el procedimiento, porque el resultado no es razonable en el contexto","Lo entrego: el procedimiento fue correcto","Cambio el signo para que sea 5","Borro el problema"],"Un resultado matemático debe interpretarse en su contexto. Una edad negativa es señal de un error en el modelo o en el cálculo."],
+["R","Tu resultado difiere del de un compañero. ¿Cuál es la mejor reacción?",["Comparar procedimientos y verificar ambos con un caso simple o con otro método","Asumir que mi resultado es el correcto","Adoptar el suyo porque parece más seguro","Promediar ambos resultados"],"La seguridad no es evidencia. Contrastar métodos y probar casos simples permite detectar el error, sea de quien sea."]
+];
+let qs,i,ans,done;
+const $=id=>document.getElementById(id);
+const sh=a=>{a=a.slice();for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}return a};
+const show=id=>["intro","quiz","res"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+function start(){qs=sh(Q).map(q=>({d:q[0],q:q[1],o:sh(q[2].map((t,n)=>({t,ok:n===0}))),f:q[3]}));i=0;ans=[];show("quiz");render();window.scrollTo(0,0)}
+function render(){
+  const q=qs[i];done=false;
+  $("cnt").textContent="Pregunta "+(i+1)+" de "+qs.length;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("pb").style.width=(i/qs.length*100)+"%";
+  $("dim").textContent=D[q.d];
+  $("q").textContent=q.q;
+  $("opts").innerHTML=q.o.map((o,k)=>'<button class="opt" onclick="pick('+k+')">'+o.t+'</button>').join("");
+  $("fb").className="fb hide";$("nx").classList.add("hide");
+}
+function pick(k){
+  if(done)return;done=true;
+  const q=qs[i],ok=q.o[k].ok;ans.push(ok);
+  [...$("opts").children].forEach((b,n)=>{b.disabled=true;if(q.o[n].ok)b.classList.add("ok");else if(n===k)b.classList.add("ko")});
+  $("fb").className="fb "+(ok?"ok":"ko");
+  $("fb").innerHTML="<b>"+(ok?"¡Buen razonamiento!":"Revisemos este razonamiento")+"</b>"+q.f;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("nx").textContent=i===qs.length-1?"Ver mis resultados":"Siguiente";
+  $("nx").classList.remove("hide");$("nx").focus();
+}
+function next(){i++;if(i<qs.length)render();else finish();window.scrollTo(0,0)}
+function finish(){
+  const tot={},ok={};qs.forEach((q,n)=>{tot[q.d]=(tot[q.d]||0)+1;ok[q.d]=(ok[q.d]||0)+(ans[n]?1:0)});
+  const s=ans.filter(Boolean).length;
+  const lv=s>=17?["Pensador crítico avanzado","Evalúas con rigor, detectas falacias y justificas tus conclusiones. Tu reto es sostener ese nivel en problemas nuevos y poco estructurados."]:s>=13?["Pensador crítico competente","Razonas bien en la mayoría de los casos, aunque algunos sesgos o atajos aún se te escapan. Afinar las dimensiones más débiles te llevará al nivel avanzado."]:s>=9?["Pensamiento crítico en desarrollo","Tienes bases sólidas, pero a veces aceptas cifras o argumentos sin cuestionarlos. Con práctica deliberada en las dimensiones señaladas puedes avanzar rápido."]:["Pensamiento crítico inicial","Es un buen punto de partida: ahora sabes en qué cuestionar más. Revisa la retroalimentación y vuelve a intentarlo."];
+  const keys=Object.keys(D);
+  const dims=keys.map(k=>{const p=Math.round(ok[k]/tot[k]*100),st=p>=75?"Fortaleza":p>=50?"En desarrollo":"Por fortalecer";
+    return '<div class="dim"><div class="row"><span><b>'+D[k]+'</b> <span class="mu">— '+st+'</span></span><span>'+ok[k]+'/'+tot[k]+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div><div class="mu" style="font-size:.88rem;margin-top:3px">'+DS[k]+'</div></div>'}).join("");
+  const weak=keys.filter(k=>ok[k]/tot[k]<0.75).map(k=>"<li><b>"+D[k]+":</b> "+TIP[k]+"</li>").join("");
+  const miss=qs.map((q,n)=>ans[n]?"":'<div class="rev"><b>'+q.q+'</b><br><span style="color:var(--ok)">Respuesta correcta: '+q.o.find(o=>o.ok).t+'</span><br><span class="mu">'+q.f+'</span></div>').join("");
+  $("res").innerHTML='<h2>Tu perfil de pensamiento crítico</h2><div class="big">'+s+'<span class="mu" style="font-size:1.4rem"> / 20</span></div><h2 style="margin-top:10px">'+lv[0]+'</h2><p>'+lv[1]+'</p>'+dims+
+   (weak?'<h2>Cómo seguir mejorando</h2><ul>'+weak+'</ul>':'<p><b>Tienes fortaleza en todas las dimensiones.</b> Prueba a explicar tus razonamientos a otra persona para consolidarlos.</p>')+
+   (miss?'<h2>Preguntas para revisar</h2>'+miss:'')+'<p><button class="btn" onclick="start()">Intentar de nuevo</button></p>';
+  show("res");
+}
+</script></body></html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solución de problemas y pensamiento crítico</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;700&display=swap">
+<style>
+:root{--bg:#f8f1f4;--st:#f0e3e9;--card:#fffffe;--tx:#2a1b23;--mu:#6d5560;--bd:#e0ccd5;--ac:#b0245f;--acs:#fae6ee;--ok:#26733f;--okb:#e4f3e8;--ko:#a8322f;--kob:#fbe9e8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1217;--st:#25181f;--card:#261a21;--tx:#f3e8ed;--mu:#b8a0ab;--bd:#44303a;--ac:#ff8fb8;--acs:#3a212d;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c}}
+:root[data-theme="dark"]{--bg:#1c1217;--st:#25181f;--card:#261a21;--tx:#f3e8ed;--mu:#b8a0ab;--bd:#44303a;--ac:#ff8fb8;--acs:#3a212d;--ok:#6fcf8d;--okb:#18301f;--ko:#ff8f8a;--kob:#3a1c1c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:repeating-linear-gradient(45deg,transparent 0 14px,var(--st) 14px 16px);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+h1,h2{font-family:Newsreader,Georgia,serif;line-height:1.2;margin:0 0 12px}
+h1{font-size:2.1rem}h2{font-size:1.45rem}
+.sheet{background:var(--card);border:1px solid var(--bd);border-right:5px solid var(--ac);border-radius:8px;padding:22px}
+.mu{color:var(--mu)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:11px 22px;font-weight:600}
+:root[data-theme="dark"] .btn{color:#2a0f1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#2a0f1b}}
+.bar{height:8px;background:var(--acs);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;margin-bottom:8px}
+.tag{display:inline-block;background:var(--acs);color:var(--ac);border-radius:4px;padding:2px 10px;font-size:.85rem;font-weight:600;margin:14px 0 8px}
+.ctx{margin:6px 0 14px;padding:12px 16px;border-left:4px solid var(--ac);background:var(--acs);border-radius:0 6px 6px 0;white-space:pre-line}
+.q{font-size:1.08rem;margin:0 0 16px;font-weight:600}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:6px;padding:11px 14px;margin-bottom:9px}
+.opt:hover:not(:disabled){border-color:var(--ac)}
+.opt.ok{border-color:var(--ok);background:var(--okb)}
+.opt.ko{border-color:var(--ko);background:var(--kob)}
+.opt:disabled{cursor:default;color:var(--tx)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:6px;background:var(--acs)}
+.fb.ok{background:var(--okb)}.fb.ko{background:var(--kob)}
+.fb b{display:block;margin-bottom:2px}
+.hide{display:none}
+.big{font-family:Newsreader,Georgia,serif;font-size:3rem;font-weight:700;line-height:1}
+.dim{margin:14px 0}
+.dim .row{display:flex;justify-content:space-between;font-size:.95rem;margin-bottom:4px}
+.rev{border-top:1px solid var(--bd);padding-top:12px;margin-top:12px;font-size:.95rem}
+</style></head><body><main>
+<section id="intro" class="sheet">
+<h1>¿Cómo resuelves problemas?</h1>
+<p>20 preguntas para evaluar tu pensamiento crítico en la solución de problemas, siguiendo sus cinco momentos: comprender el problema, planificar estrategias, ejecutar y monitorear, verificar y evaluar, y reflexionar para transferir lo aprendido.</p>
+<p class="mu">Puedes usar lápiz y papel; no necesitas calculadora. Recibes retroalimentación después de cada respuesta y, al final, un perfil por momento con su habilidad crítica asociada. Las preguntas y las opciones cambian de orden en cada intento.</p>
+<button class="btn" onclick="start()">Comenzar</button>
+</section>
+<section id="quiz" class="sheet hide">
+<div class="top"><span id="cnt"></span><span class="mu" id="pts"></span></div>
+<div class="bar"><i id="pb"></i></div>
+<span class="tag" id="dim"></span>
+<div class="ctx hide" id="tx"></div>
+<p class="q" id="q"></p>
+<div id="opts"></div>
+<div id="fb" class="fb hide"></div>
+<p><button class="btn hide" id="nx" onclick="next()">Siguiente</button></p>
+</section>
+<section id="res" class="sheet hide"></section>
+</main>
+<script>
+const D={C:"Comprender el problema",P:"Planificar estrategias",E:"Ejecutar y monitorear",V:"Verificar y evaluar",R:"Reflexionar y transferir"};
+const DS={C:"Pensamiento crítico asociado: interpretar. Distinguir incógnitas, condiciones, datos útiles y datos que faltan o sobran.",P:"Pensamiento crítico asociado: analizar e inferir. Elegir y justificar una estrategia (trabajar hacia atrás, buscar patrones, descomponer, cambiar de enfoque).",E:"Pensamiento crítico asociado: autorregularse. Ejecutar el plan con exactitud, vigilar el avance y cambiar de rumbo cuando no funciona.",V:"Pensamiento crítico asociado: evaluar. Comprobar que la solución es razonable, cumple las condiciones y tiene sentido en el contexto.",R:"Pensamiento crítico asociado: metacognición. Aprender del error y reconocer la estructura común entre problemas distintos."};
+const TIP={C:"Antes de resolver, reformula el problema con tus palabras, subraya lo que se pide y tacha los datos que no usas.",P:"Ten un repertorio de estrategias: trabajar hacia atrás, simplificar con casos pequeños, hacer un esquema, buscar patrones.",E:"Fija puntos de control: si en unos minutos no avanzas, detente, explica por qué y prueba otro camino.",V:"Comprueba tu solución con una estimación, con otro método y contra el contexto (¿tiene sentido que sean 3,25 buses?).",R:"Al terminar, anota qué estrategia funcionó, dónde dudaste y con qué otros problemas se parece."};
+/* [momento, contexto, pregunta, opciones (la correcta va primero), retroalimentación] */
+const Q=[
+["C","En una finca hay gallinas y conejos. En total se cuentan 35 cabezas y 94 patas.","¿Cuáles son las incógnitas y las condiciones del problema?",["Incógnitas: cuántas gallinas y cuántos conejos hay. Condiciones: suman 35 animales y 94 patas","Incógnitas: 35 y 94. Condiciones: ninguna","Incógnita: el total de patas. Condición: hay 35 animales","Incógnita: la edad de los animales. Condición: hay 94 gallinas"],"Comprender es separar lo que se busca (cantidad de cada animal) de lo que se impone (35 cabezas y 94 patas). Las cifras dadas son datos, no incógnitas."],
+["C","Un bus sale de Medellín a las 6:00 a. m. con 40 pasajeros, recorre 120 km a 60 km/h y es de color azul.","Si se pregunta cuánto dura el recorrido, ¿qué datos son irrelevantes?",["La hora de salida, el número de pasajeros y el color","La distancia y la velocidad","Solo el color","Ninguno: todos los datos siempre se usan"],"La duración depende de la distancia y la velocidad: 120 ÷ 60 = 2 horas. Saber descartar datos distractores es parte de comprender."],
+["C","Una receta para 4 personas usa 300 g de arroz. Se pregunta: “¿Cuánto arroz necesito para la fiesta?”.","¿Qué problema tiene el enunciado?",["Falta un dato clave: cuántas personas asistirán","Sobra el dato de los 300 g","Es imposible calcular proporciones","No tiene ningún problema"],"Sin el número de invitados no hay solución única. Detectar datos que faltan evita cálculos sin sentido."],
+["C","“El precio de un artículo sube un 10 % y luego baja un 10 %. ¿Es el precio final igual al inicial?”","¿Qué es lo más útil para comprender el problema antes de generalizar?",["Probar con un valor concreto, por ejemplo $100: sube a $110 y baja a $99","Suponer que sí, porque +10 y −10 se cancelan","Calcular el promedio de los dos porcentajes","Ignorar el problema por ser engañoso"],"Un caso particular hace visible la estructura: los porcentajes se aplican sobre bases distintas, así que el precio final (99) no iguala al inicial (100)."],
+["P","Piensas un número, lo multiplicas por 3, le restas 4 y obtienes 17.","¿Qué estrategia permite hallar el número con mayor eficiencia?",["Trabajar hacia atrás: 17 + 4 = 21 y 21 ÷ 3 = 7","Probar números al azar hasta acertar","Sumar 3 + 4 + 17","Multiplicar 17 por 3"],"Cuando se conoce el resultado y las operaciones, invertirlas en orden inverso es directo. Comprobación: 7 × 3 − 4 = 17."],
+["P","Afuera de un cuarto hay 3 interruptores y adentro una sola bombilla. Puedes entrar una sola vez para ver la bombilla.","¿Qué idea de solución permite identificar cuál interruptor la enciende?",["Usar otra variable: encender uno un rato, apagarlo, encender otro y entrar; la bombilla caliente y apagada es la del primero","Probar los interruptores al azar mientras estás adentro","Encender los tres a la vez","Es imposible resolverlo"],"El problema parece insoluble si solo se observa la luz. Pensar con flexibilidad (usar el calor como información adicional) abre una vía nueva."],
+["P","Debes calcular cuántas baldosas cuadradas de 30 cm cubren un piso con forma de L, formado por dos rectángulos.","¿Cuál es el mejor plan?",["Dividir la L en dos rectángulos, calcular cada área y sumar","Multiplicar el lado más largo por el más ancho de la figura","Usar solo el perímetro","Medir al azar un lado y estimar"],"Descomponer un problema complejo en partes simples es una estrategia poderosa. Multiplicar los lados mayores sobrestimaría el área al incluir el hueco de la L."],
+["P","Quieres saber cuántos apretones de manos hay si 10 personas se saludan todas entre sí una sola vez.","¿Qué estrategia es más útil?",["Resolver con 2, 3, 4 personas, buscar el patrón y generalizar","Multiplicar 10 × 10","Suponer que cada persona saluda a las 10","Contar a ojo en una reunión"],"Con 2, 3, 4 y 5 personas hay 1, 3, 6 y 10 apretones: el patrón es n(n − 1)/2, que para 10 da 45. Multiplicar 10 × 10 cuenta cada saludo dos veces y las personas con ellas mismas."],
+["P","Debes hallar dos números enteros consecutivos cuyo producto sea 156.","¿Cuál es un plan razonable?",["Estimar con √156 ≈ 12 y probar 12 × 13","Probar todos los números del 1 al 1 000 sin criterio","Dividir 156 entre 2","Sumar 156 + 1"],"Si el producto es 156, los números están cerca de su raíz cuadrada (≈ 12). 12 × 13 = 156. Una estimación inteligente reduce mucho la búsqueda."],
+["E","En la finca hay 35 cabezas y 94 patas, entre gallinas (2 patas) y conejos (4 patas).","¿Cuántos conejos hay?",["12","23","11","35"],"Si los 35 fueran gallinas habría 70 patas; sobran 24, y cada conejo aporta 2 patas más: 24 ÷ 2 = 12 conejos y 23 gallinas. Comprobación: 46 + 48 = 94."],
+["E","Un estudiante resuelve 2x + 6 = 20 y obtiene x = 13.","¿Cuál es la mejor forma de detectar el error mientras resuelve?",["Sustituir: 2(13) + 6 = 32, que no es 20","Repetir el mismo procedimiento sin cambios","Confiar en el resultado porque lo calculó con cuidado","Preguntar quién obtuvo el número más grande"],"Sustituir en la ecuación original es un control inmediato. La solución correcta es x = 7, pues 2(7) + 6 = 20."],
+["E","Llevas 20 minutos intentando un problema con la misma estrategia, sin avanzar.","¿Qué haces?",["Me detengo, evalúo por qué no avanza y pruebo otra estrategia o un caso más simple","Repito lo mismo con más fuerza","Lo abandono para siempre","Copio una respuesta sin revisarla"],"Monitorear el propio avance y cambiar de estrategia es la esencia de la autorregulación. Insistir sin evaluar rara vez funciona."],
+["E","Un ciclista recorre 30 km a 15 km/h y luego otros 30 km a 30 km/h.","¿Cuál es su velocidad media en todo el trayecto?",["20 km/h","22,5 km/h","25 km/h","30 km/h"],"Tarda 2 h + 1 h = 3 h para 60 km, es decir, 20 km/h. Promediar 15 y 30 ignora que pasa más tiempo en el tramo lento."],
+["V","Calculas el área de un salón de 6 m × 8 m y obtienes 480 m².","¿Qué revisión detecta el error?",["Estimar: 6 × 8 ≈ 50, así que 480 es diez veces mayor; el resultado correcto es 48 m²","Ninguna: el resultado es correcto","Cambiar los metros por centímetros","Sumar 6 + 8"],"Una estimación de orden de magnitud permite detectar un error de factor 10 sin repetir todo el cálculo."],
+["V","Obtuviste que el 15 % de 240 es 36.","¿Cuál es una comprobación independiente?",["Calcular 10 % = 24 y 5 % = 12, y sumar: 24 + 12 = 36","Repetir exactamente la misma multiplicación","Redondear 240 a 300","Preguntar a un compañero y aceptar lo que diga"],"Comprobar con otro camino (descomponer el porcentaje) es más fiable que repetir el mismo procedimiento, que puede reproducir el mismo error."],
+["V","Un problema pide cuántos buses de 40 plazas se necesitan para llevar 130 estudiantes. Obtienes 130 ÷ 40 = 3,25.","¿Qué respuesta es adecuada al contexto?",["4 buses, porque no se puede usar parte de un bus y hay que redondear hacia arriba","3 buses","3,25 buses","3,5 buses"],"La solución matemática debe interpretarse en el contexto. Con 3 buses quedarían 10 estudiantes sin cupo."],
+["V","Un compañero dice que su solución es correcta “porque coincide con la del libro”.","¿Qué hace falta para considerar válido su proceso?",["Justificar cada paso y verificar que cumple las condiciones del problema","Nada: coincidir con el libro basta","Mostrar que usó calculadora","Que otros compañeros opinen lo mismo"],"Se puede llegar a la respuesta correcta con un razonamiento incorrecto. La validez está en el proceso, no solo en el resultado."],
+["R","Acabas de resolver un problema correctamente.","¿Cuál es la reflexión más valiosa?",["Identificar qué estrategia funcionó, por qué, y en qué otros problemas podría servir","Pasar de inmediato al siguiente sin pensar","Memorizar solo la respuesta final","Olvidar el problema para no confundirse"],"Reflexionar sobre el método, y no solo sobre el resultado, convierte una solución aislada en una herramienta transferible."],
+["R","Tu solución a un problema resultó incorrecta.","¿Cuál es la mejor reacción?",["Analizar en qué paso y por qué fallé, y registrar el aprendizaje","Concluir que no soy bueno para estos problemas","Asumir que el enunciado estaba mal","Borrar todo y no volver a pensar en ello"],"El error es información. Localizar el paso donde falló el razonamiento permite corregir el método y evitar repetir el fallo."],
+["R","Resolviste que 10 personas que se saludan todas entre sí generan 45 apretones de manos.","¿Qué otro problema tiene la misma estructura?",["Cuántos partidos se juegan en un torneo todos contra todos, solo de ida, con 10 equipos","De cuántas formas se pueden ordenar 10 personas en una fila","Cuántas personas caben en 10 buses","Cuánto es 10 × 10"],"En ambos casos se forman pares sin repetir y sin importar el orden: 10 × 9 ÷ 2 = 45. Reconocer estructuras comunes es la base de la transferencia."]
+];
+let qs,i,ans,done;
+const $=id=>document.getElementById(id);
+const sh=a=>{a=a.slice();for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}return a};
+const show=id=>["intro","quiz","res"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+function start(){qs=sh(Q).map(q=>({d:q[0],t:q[1],q:q[2],o:sh(q[3].map((t,n)=>({t,ok:n===0}))),f:q[4]}));i=0;ans=[];show("quiz");render();window.scrollTo(0,0)}
+function render(){
+  const q=qs[i];done=false;
+  $("cnt").textContent="Pregunta "+(i+1)+" de "+qs.length;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("pb").style.width=(i/qs.length*100)+"%";
+  $("dim").textContent=D[q.d];
+  $("tx").textContent=q.t;$("tx").classList.toggle("hide",!q.t);
+  $("q").textContent=q.q;
+  $("opts").innerHTML=q.o.map((o,k)=>'<button class="opt" onclick="pick('+k+')">'+o.t+'</button>').join("");
+  $("fb").className="fb hide";$("nx").classList.add("hide");
+}
+function pick(k){
+  if(done)return;done=true;
+  const q=qs[i],ok=q.o[k].ok;ans.push(ok);
+  [...$("opts").children].forEach((b,n)=>{b.disabled=true;if(q.o[n].ok)b.classList.add("ok");else if(n===k)b.classList.add("ko")});
+  $("fb").className="fb "+(ok?"ok":"ko");
+  $("fb").innerHTML="<b>"+(ok?"¡Buena estrategia!":"Revisemos esta estrategia")+"</b>"+q.f;
+  $("pts").textContent="Aciertos: "+ans.filter(Boolean).length;
+  $("nx").textContent=i===qs.length-1?"Ver mis resultados":"Siguiente";
+  $("nx").classList.remove("hide");$("nx").focus();
+}
+function next(){i++;if(i<qs.length)render();else finish();window.scrollTo(0,0)}
+function finish(){
+  const tot={},ok={};qs.forEach((q,n)=>{tot[q.d]=(tot[q.d]||0)+1;ok[q.d]=(ok[q.d]||0)+(ans[n]?1:0)});
+  const s=ans.filter(Boolean).length;
+  const lv=s>=17?["Solucionador crítico avanzado","Comprendes con precisión, eliges estrategias con criterio, vigilas tu avance y verificas tus resultados. Tu reto es sostener ese nivel en problemas abiertos y sin una estructura conocida."]:s>=13?["Solucionador crítico competente","Resuelves bien la mayoría de los problemas, aunque a veces te saltas la verificación o insistes en una estrategia que no funciona. Fortalecer los momentos más bajos te llevará al nivel avanzado."]:s>=9?["Solucionador crítico en desarrollo","Tienes recursos para resolver problemas, pero te cuesta planificar, comprobar o cambiar de enfoque. La práctica deliberada en los momentos señalados te hará avanzar rápido."]:["Solucionador crítico inicial","Es un buen punto de partida: ahora sabes en qué momentos del proceso reforzar tu trabajo. Revisa la retroalimentación y vuelve a intentarlo."];
+  const keys=Object.keys(D);
+  const dims=keys.map(k=>{const p=Math.round(ok[k]/tot[k]*100),st=p>=75?"Fortaleza":p>=50?"En desarrollo":"Por fortalecer";
+    return '<div class="dim"><div class="row"><span><b>'+D[k]+'</b> <span class="mu">— '+st+'</span></span><span>'+ok[k]+'/'+tot[k]+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div><div class="mu" style="font-size:.88rem;margin-top:3px">'+DS[k]+'</div></div>'}).join("");
+  const weak=keys.filter(k=>ok[k]/tot[k]<0.75).map(k=>"<li><b>"+D[k]+":</b> "+TIP[k]+"</li>").join("");
+  const miss=qs.map((q,n)=>ans[n]?"":'<div class="rev">'+(q.t?'<i class="mu" style="white-space:pre-line">'+q.t+'</i><br>':'')+'<b>'+q.q+'</b><br><span style="color:var(--ok)">Respuesta correcta: '+q.o.find(o=>o.ok).t+'</span><br><span class="mu">'+q.f+'</span></div>').join("");
+  $("res").innerHTML='<h2>Tu perfil de solución de problemas</h2><div class="big">'+s+'<span class="mu" style="font-size:1.4rem"> / 20</span></div><h2 style="margin-top:10px">'+lv[0]+'</h2><p>'+lv[1]+'</p>'+dims+
+   (weak?'<h2>Cómo seguir mejorando</h2><ul>'+weak+'</ul>':'<p><b>Tienes fortaleza en todos los momentos del proceso.</b> Prueba a explicar tus soluciones a otra persona para consolidarlas.</p>')+
+   (miss?'<h2>Preguntas para revisar</h2>'+miss:'')+'<p><button class="btn" onclick="start()">Intentar de nuevo</button></p>';
+  show("res");
+}
+</script></body></html>
