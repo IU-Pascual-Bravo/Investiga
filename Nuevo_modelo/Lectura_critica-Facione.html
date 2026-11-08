@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Prueba interactiva de 5 escenarios para evaluar habilidades de lectura crítica y pensamiento crítico en estudiantes universitarios.">
+<title>Pensamiento crítico | Lectura crítica universitaria</title>
+<style>
+:root{
+  --ink:#17243a;--muted:#607086;--blue:#2457a6;--cyan:#16a6a1;
+  --paper:#f4f7fb;--card:#fff;--line:#dce4ef;--good:#16794b;
+  --bad:#b43b3b;--softgood:#e9f7ef;--softbad:#fff0ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#edf3fc,#f4fbfa);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.container{width:min(920px,94%);margin:32px auto 56px}
+header{background:linear-gradient(120deg,#173b78,#087f88);color:white;padding:30px clamp(20px,5vw,44px);
+  border-radius:22px;box-shadow:0 14px 35px #173b7825}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.85}
+h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.12;margin:10px 0}
+header p{max-width:720px;margin:12px 0 0;color:#e8f5ff}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.pill{background:#ffffff20;border:1px solid #ffffff40;padding:6px 11px;border-radius:999px;font-size:.82rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);
+  margin-top:20px;box-shadow:0 8px 24px #1c35500b}
+h2{font-size:1.25rem;margin:0 0 10px}
+.instructions{color:var(--muted);margin:0}
+.progress-head{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.9rem;margin-bottom:9px}
+.progress{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.tag{font-size:.76rem;font-weight:750;color:#24518b;background:#edf4ff;padding:5px 9px;border-radius:7px}
+.question{font-size:1.14rem;font-weight:700;margin:12px 0 18px}
+.options{display:grid;gap:10px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  cursor:pointer;transition:.15s;background:white}
+.option:hover{border-color:#8caedb;background:#f8fbff}
+.option:has(input:checked){border-color:var(--blue);background:#eef5ff}
+.option.answer-good{border-color:#78c79a;background:var(--softgood);color:#145d3b}
+.option.answer-bad{border-color:#e5a29c;background:var(--softbad);color:#8d2929}
+.option input{margin-top:5px;accent-color:var(--blue);flex:0 0 auto}
+.option span{flex:1}
+.option.disabled{cursor:default}
+.feedback{margin-top:17px;border-radius:12px;padding:14px 16px;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--softgood);border:1px solid #b9e3ca;color:#145d3b}
+.feedback.bad{background:var(--softbad);border:1px solid #f0c5c1;color:#8d2929}
+.feedback strong{display:block;margin-bottom:4px}
+.scenario-intro{color:var(--muted);margin:0 0 18px}
+.scenario-question{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.scenario-question:first-child{border-top:0;padding-top:0;margin-top:0}
+.scenario-question .tags{margin-top:0}
+.stimulus{background:#f1f6fc;border-left:4px solid var(--cyan);border-radius:10px;padding:16px 18px;margin:16px 0 22px;white-space:pre-line}
+.hint{margin-top:12px}
+.hint summary{color:var(--blue);font-weight:700;cursor:pointer}
+.hint p{color:var(--muted);margin:8px 0 0;font-size:.92rem}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:.95rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#31445e}
+#finish{display:none}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0}
+.score-number{font-size:2.6rem;font-weight:850;color:var(--blue);line-height:1}
+.level{font-weight:800;font-size:1.05rem}
+.result-intro{color:var(--muted)}
+.dimension{margin:18px 0}
+.dimension-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:.92rem}
+.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:15px;background:#f1f6fc;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin:22px 0}
+@media(max-width:560px){.container{margin:14px auto 35px}header{border-radius:16px}.panel{border-radius:14px}.actions button{flex:1}}
+@media print{body{background:white}.container{width:100%;margin:0}header{box-shadow:none}.actions,#quizPanel,footer{display:none!important}#finish{display:block!important}.panel{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="eyebrow">Evaluación universitaria · Instrumento diagnóstico</div>
+  <h1>Pensamiento crítico: lectura crítica</h1>
+  <p>Prueba interactiva de 5 escenarios para valorar la interpretación, el análisis de argumentos, la evaluación de evidencias y la elaboración de juicios fundamentados.</p>
+  <div class="meta"><span class="pill">5 escenarios</span><span class="pill">15 preguntas</span><span class="pill">Nivel universitario</span></div>
+</header>
+
+<section class="panel" id="intro">
+  <h2>Antes de comenzar</h2>
+  <p class="instructions">Lee cada escenario con atención y responde sus tres preguntas antes de continuar. Selecciona una respuesta en las preguntas de opción única, marca todas las respuestas pertinentes en la pregunta de selección múltiple y decide si las afirmaciones de verdadero/falso son correctas. Al finalizar verás tu resultado global y el desempeño por dimensión.</p>
+  <p class="instructions" style="margin-top:10px"><strong>Duración sugerida:</strong> 15–25 minutos. Cada pregunta vale un punto; en la pregunta de selección múltiple se requiere seleccionar el conjunto completo correcto para obtener el punto.</p>
+  <div class="actions"><span></span><button class="primary" id="startBtn">Comenzar cuestionario</button></div>
+</section>
+
+<section class="panel" id="quizPanel" hidden>
+  <div class="progress-head"><span id="progressText">Escenario 1 de 5</span><span id="progressPct">20 %</span></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <h2 id="scenarioTitle"></h2>
+  <p class="scenario-intro" id="scenarioIntro"></p>
+  <div class="stimulus" id="stimulusText"></div>
+  <div id="scenarioQuestions"></div>
+  <div class="actions">
+    <button class="secondary" id="prevBtn">Escenario anterior</button>
+    <button class="primary" id="checkBtn">Comprobar escenario</button>
+    <button class="primary" id="nextBtn" hidden>Siguiente escenario</button>
+  </div>
+</section>
+
+<section class="panel" id="finish">
+  <h2>Resultados de la evaluación</h2>
+  <p class="result-intro">Tu resultado representa el desempeño en estas tareas de lectura crítica. Revisa tanto el puntaje global como las dimensiones.</p>
+  <div class="score"><div class="score-number" id="scoreNumber">0/15</div><div><div class="level" id="levelName"></div><div class="result-intro" id="levelDescription"></div></div></div>
+  <h2 style="margin-top:25px">Desempeño por dimensión</h2>
+  <div id="dimensionResults"></div>
+  <div class="result-note" id="recommendation"></div>
+  <div class="actions"><button class="secondary" id="reviewBtn">Revisar respuestas</button><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="restartBtn">Repetir cuestionario</button></div>
+</section>
+<footer>Cuestionario diagnóstico de lectura crítica · Uso educativo</footer>
+</div>
+
+<script>
+const dimensions = [
+  "Interpretación e inferencia",
+  "Análisis argumentativo",
+  "Evaluación de evidencias",
+  "Reflexión y juicio crítico"
+];
+
+const $=id=>document.getElementById(id);
+const scenarios=[
+ {title:"Escenario 1: Leer en pantalla o en papel",intro:"Columna de opinión · Texto argumentativo",stimulus:"«Leemos más, pero comprendemos menos» (columna de opinión)\n\nCada semestre, los profesores de primer año repiten la misma queja: los estudiantes leen rápido, subrayan poco y recuerdan menos. La explicación más popular culpa a las pantallas. Sin embargo, quienes se apresuran a condenar la tecnología olvidan algo incómodo: en las bibliotecas de hace treinta años también abundaban las fotocopias que nadie leía. Lo que ha cambiado no es el hábito de saltarse páginas, sino su visibilidad: hoy cada clic queda registrado; antes, el desinterés pasaba inadvertido.\n\nUn estudio con 240 estudiantes de dos universidades encontró que quienes leyeron un texto en papel respondieron mejor las preguntas de inferencia que quienes lo leyeron en pantalla (7 puntos de diferencia promedio sobre 100). Los autores aclaran que la brecha bajó a 2 puntos cuando ambos grupos tuvieron el mismo tiempo y debieron escribir un resumen antes de responder. Aun así, varios medios titularon: «El papel gana la batalla».\n\nMi tesis es sencilla: el problema no es el soporte, sino la forma de leer. Si la universidad se limita a prohibir los dispositivos, tratará el síntoma y dejará intacta la causa.",questions:[
+  {d:0,q:"¿Qué quiere decir el autor con la expresión «lo que ha cambiado no es el hábito de saltarse páginas, sino su visibilidad»?",o:[["A","Que hoy los estudiantes se saltan menos páginas porque sus lecturas quedan registradas."],["B","Que saltarse páginas ya ocurría antes; la diferencia es que ahora puede observarse mejor."],["C","Que las fotocopias de antes se leían con más atención que los textos digitales de hoy en día."],["D","Que los profesores perciben mejor ahora el esfuerzo que los estudiantes dedican a leer sus textos."]],a:["B"]},
+  {d:1,q:"Dentro del argumento del autor, ¿qué función cumple el dato de que la brecha bajó de 7 a 2 puntos al igualar el tiempo y pedir un resumen?",o:[["A","Prueba que el papel supera a la pantalla en todas las condiciones de lectura posibles."],["B","Funciona como una objeción del autor contra la validez de todo el estudio citado."],["C","Confirma el titular de los medios, que presentaron los resultados con exactitud."],["D","Respalda su tesis, pues sugiere que la forma de leer influye más que el soporte."]],a:["D"]},
+  {d:3,q:"¿Qué objeción razonable podría plantear un lector crítico a la tesis del autor sin descartarla por completo?",o:[["A","Que la brecha no desaparece del todo: quedan 2 puntos que el soporte aún podría explicar."],["B","Que, por ser una columna de opinión y no un artículo científico, no sirve para discutir el tema."],["C","Que debería haber aceptado el titular de los medios para mostrarse imparcial ante los lectores."],["D","Que 240 estudiantes son una muestra demasiado pequeña para sacar conclusión alguna sobre la lectura."]],a:["A"]}]},
+ {title:"Escenario 2: Madrugar y rendir",intro:"Noticia de divulgación científica · Datos y conclusiones",stimulus:"«Los universitarios que madrugan obtienen mejores notas» (noticia)\n\nUn equipo de investigadores analizó los datos de 1.200 estudiantes de una universidad privada que aceptaron compartir la información de su teléfono durante un semestre. Quienes se levantaban antes de las 6:30 a. m. tuvieron un promedio de 4,1, frente a 3,6 de quienes se levantaban después de las 8:30 a. m. La investigación fue financiada por una empresa que vende relojes despertadores inteligentes y no registró las horas de trabajo remunerado ni la carga académica de cada estudiante.\n\n«Los resultados sugieren que adelantar la hora de levantarse podría favorecer el rendimiento», explicó la investigadora principal. El titular de la noticia fue más lejos: «Madrugar es la clave del éxito académico».",questions:[
+  {d:2,q:"¿Cuál es la limitación más importante del estudio para afirmar que madrugar mejora las notas?",o:[["A","Que 1.200 estudiantes son una muestra demasiado pequeña para calcular promedios que sean confiables."],["B","Que el teléfono es un instrumento inadecuado para registrar la hora en que alguien se levanta."],["C","Que solo muestra una asociación: otras variables, como el trabajo, explicarían ambos resultados."],["D","Que un promedio de 4,1 es un valor demasiado alto para ser real en una universidad privada."]],a:["C"]},
+  {d:0,q:"¿Cuál de las siguientes afirmaciones se desprende directamente de los datos presentados en la noticia?",o:[["A","Los participantes que se levantaban más temprano tuvieron, en promedio, mejores notas."],["B","Los estudiantes que se levantan tarde tienen una menor capacidad de concentración en clase."],["C","Un estudiante que adelante su hora de levantarse verá subir su promedio hasta cerca de 4,1."],["D","Los estudiantes de universidades públicas rendirían igual si modificaran su horario de sueño."]],a:["A"]},
+  {d:2,q:"¿Qué implicación tiene que la investigación fuera financiada por una empresa de relojes despertadores inteligentes?",o:[["A","Invalida los resultados, porque toda investigación pagada por una empresa termina manipulando sus datos."],["B","No tiene relevancia, porque lo único que importa es la cantidad de participantes del estudio realizado."],["C","Aumenta la confiabilidad, porque la empresa conoce de cerca los hábitos de sueño de los jóvenes."],["D","Plantea un posible conflicto de intereses que conviene tener presente al interpretar las conclusiones."]],a:["D"]}]},
+ {title:"Escenario 3: Clases remotas, dos miradas",intro:"Dos textos en contraste · Comparación de posturas",stimulus:"Texto A — Decano de una facultad de ingeniería\n«El teletrabajo docente demostró que la presencia física no es indispensable para enseñar bien. Durante dos semestres, la facultad mantuvo la misma tasa de aprobación y redujo en un 30 % sus costos de infraestructura. Insistir en el regreso diario al campus es defender una costumbre, no una necesidad pedagógica.»\n\nTexto B — Representante estudiantil de la misma facultad\n«Que la tasa de aprobación se haya mantenido no demuestra que se aprenda lo mismo. Muchos compañeros aprueban, pero cuentan que no pudieron resolver dudas ni conformar grupos de estudio. Además, el ahorro en infraestructura beneficia a la institución, mientras que los estudiantes asumen por su cuenta el costo del internet y de un lugar para estudiar.»",questions:[
+  {d:1,q:"¿En qué punto central discrepan realmente los dos textos?",o:[["A","En si la facultad redujo o no sus costos de infraestructura durante los dos semestres."],["B","En si los estudiantes cuentan con internet suficiente para estudiar desde sus propias casas."],["C","En si el teletrabajo docente debería aplicarse en todas las facultades de la universidad."],["D","En si mantener la tasa de aprobación basta para concluir que la calidad del aprendizaje se sostuvo."]],a:["D"]},
+  {d:0,q:"¿Qué se puede inferir del Texto B sobre el tipo de evidencia que su autor considera necesaria?",o:[["A","Que las cifras de aprobación carecen de valor y no deberían usarse para evaluar ninguna decisión académica."],["B","Que el ahorro en infraestructura es ficticio y la facultad no logró reducir realmente sus costos."],["C","Que, además de las cifras institucionales, también cuentan las experiencias que relatan los estudiantes."],["D","Que el teletrabajo docente debería eliminarse de inmediato, pues perjudica a los alumnos de la facultad."]],a:["C"]},
+  {d:3,q:"¿Qué información ayudaría más a decidir entre ambas posturas?",o:[["A","El número de docentes de la facultad que prefiere trabajar desde su casa y no en el campus físico."],["B","Pruebas comparables que midan el aprendizaje antes y después de cambiar la modalidad de clases."],["C","El porcentaje de ahorro que lograron otras universidades que adoptaron un modelo parecido."],["D","La cantidad de estudiantes que respalda al representante estudiantil en sus redes sociales."]],a:["B"]}]},
+ {title:"Escenario 4: ¿Subsidiar el transporte estudiantil?",intro:"Editorial · Análisis de un argumento",stimulus:"«Un subsidio que saldría caro» (editorial)\n\nEl concejo discute un subsidio del 50 % en el pasaje para universitarios. Sus defensores aseguran que nadie debería dejar de estudiar por no poder pagar el bus. Pero si hoy se subsidia a los estudiantes, mañana se exigirá subsidiar a los trabajadores, luego a los jubilados y, al final, el sistema de transporte quebrará. La ciudad solo tiene dos caminos: mantener tarifas iguales para todos o resignarse a un servicio público en ruinas.\n\nAdemás, la autora de la propuesta, la concejala Ríos, fue sancionada hace años por una falta administrativa, lo que basta para dudar de sus intenciones. Por último, en la ciudad vecina se aprobó un subsidio similar y, desde entonces, las filas en las estaciones han aumentado: es evidente que el subsidio las provocó.",questions:[
+  {d:1,q:"¿Qué problema presenta el razonamiento «si hoy se subsidia a los estudiantes, mañana se exigirá subsidiar a todos y el sistema quebrará»?",o:[["A","Supone una cadena de consecuencias inevitables sin evidencia de que cada paso ocurriría."],["B","Ataca a la persona que propone la medida en lugar de discutir los méritos de la propuesta."],["C","Presenta solo dos alternativas cuando en realidad existen otras opciones intermedias posibles."],["D","Atribuye un efecto a una causa simplemente porque el primero ocurrió después de la segunda."]],a:["A"]},
+  {d:2,q:"El editorial concluye que el subsidio de la ciudad vecina provocó el aumento de las filas. ¿Qué información sería indispensable para evaluar esa conclusión?",o:[["A","Cuántos concejales de la ciudad vecina votaron a favor de aprobar el subsidio estudiantil."],["B","Si las filas ya aumentaban antes del subsidio y si cambiaron otros factores, como las rutas."],["C","Cuál es el precio del pasaje en otras ciudades del país que no aprobaron ningún subsidio."],["D","Qué porcentaje de los estudiantes de la ciudad vecina prefiere desplazarse en bicicleta."]],a:["B"]},
+  {d:3,q:"¿Qué valoración global del editorial está mejor fundamentada?",o:[["A","Es sólido, porque la preocupación por el costo del sistema basta para rechazar la propuesta de ley."],["B","Es inválido en todos sus aspectos, así que el costo fiscal del subsidio no merece ser discutido."],["C","Es débil como argumento, aunque la preocupación por el costo sea legítima y merezca datos."],["D","Es equilibrado, ya que presenta con la misma amplitud los argumentos a favor y en contra."]],a:["C"]}]},
+ {title:"Escenario 5: Publicidad que parece ciencia",intro:"Texto publicitario · Fuentes y lenguaje persuasivo",stimulus:"Fragmento de un folleto de NeuroFoco+, un suplemento para estudiantes\n\n«Nuestra fórmula fue creada por un equipo de expertos y ya la usan más de 50 000 universitarios en el país. En un estudio interno, el 92 % de los usuarios dijo sentirse más concentrado tras dos semanas. Los neurocientíficos coinciden: mejorar el enfoque es posible. Si quieres rendir en tus parciales, no esperes más: los estudiantes que no lo toman se quedan atrás.»\n\nLetra pequeña: «El estudio interno no incluyó grupo de comparación. Los datos provienen de una encuesta voluntaria respondida por 140 usuarios.»",questions:[
+  {d:2,q:"¿Qué limitación del dato «el 92 % se sintió más concentrado» se desprende de la letra pequeña?",o:[["A","Que 140 usuarios son tan pocos que el porcentaje ni siquiera puede calcularse."],["B","Que, sin grupo de comparación, la mejora podría deberse a la expectativa y no al producto."],["C","Que la encuesta fue voluntaria y, por eso, los participantes mintieron sobre su concentración."],["D","Que el estudio es interno y, por tanto, sus resultados no admiten ninguna interpretación."]],a:["B"]},
+  {d:1,q:"¿Qué recurso persuasivo emplea la frase «los estudiantes que no lo toman se quedan atrás»?",o:[["A","Presiona con una supuesta desventaja social sin ofrecer evidencia que la respalde."],["B","Cita a un investigador identificado para respaldar con su autoridad la eficacia del producto."],["C","Compara estadísticamente el rendimiento de quienes consumen el suplemento y de quienes no."],["D","Explica técnicamente cómo actúan los componentes de la fórmula sobre el cerebro."]],a:["A"]},
+  {d:0,q:"¿Qué se puede inferir de la frase «Los neurocientíficos coinciden: mejorar el enfoque es posible»?",o:[["A","Que los neurocientíficos comprobaron la eficacia de NeuroFoco+ en investigaciones publicadas."],["B","Que mejorar el enfoque solo es posible mediante el consumo de suplementos como este."],["C","Que afirma algo general sobre el enfoque, sin establecer que esos expertos avalen este producto."],["D","Que quien lo consuma mejorará sus calificaciones en los parciales del semestre."]],a:["C"]}]}
+];
+let scenarioIndex=0,scenarioOrder=[],answers={},checked={};
+const shuffle=items=>items.sort(()=>Math.random()-.5);
+function selectedValues(i){return [...document.querySelectorAll(`input[data-question="${i}"]:checked`)].map(x=>x.value)}
+function isCorrect(q,i){const a=answers[i]||[];return checked[i]&&q.a.every(v=>a.includes(v))&&a.every(v=>q.a.includes(v))}
+function feedback(q,i,box){box.className="feedback show "+(isCorrect(q,i)?"good":"bad");const title=document.createElement("strong");title.textContent=isCorrect(q,i)?"Respuesta correcta":"Respuesta incorrecta";box.append(title);const p=document.createElement("p");p.textContent=isCorrect(q,i)?"Tu respuesta coincide con el razonamiento esperado.":`La respuesta correcta es ${q.a.join(", ")}.`;box.append(p)}
+function render(){const s=scenarios[scenarioOrder[scenarioIndex]],pct=Math.round((scenarioIndex+1)/5*100);$("progressText").textContent=`Escenario ${scenarioIndex+1} de 5`;$("progressPct").textContent=pct+" %";$("progressBar").style.width=pct+"%";$("scenarioTitle").textContent=s.title.replace(/^Escenario \d+/,`Escenario ${scenarioIndex+1}`);$("scenarioIntro").textContent=s.intro;$("stimulusText").textContent=s.stimulus;const c=$("scenarioQuestions");c.innerHTML="";s.questions.forEach((q,n)=>{const key=scenarioIndex+"-"+n,w=document.createElement("article"),chosen=answers[key]||[];w.className="scenario-question";w.innerHTML=`<div class="tags"><span class="tag">Reactivo ${n+1} de 3</span><span class="tag">${dimensions[q.d]}</span></div><div class="question"></div><div class="options"></div><div class="feedback" aria-live="polite"></div>`;w.querySelector(".question").textContent=q.q;q.o.forEach(([v,l])=>{const lab=document.createElement("label");const selected=chosen.includes(v);const optionCorrect=q.a.includes(v);const wrongSelection=selected&&!isCorrect(q,key);lab.className="option"+(checked[key]?" disabled":"")+(checked[key]?(optionCorrect?" answer-good":(wrongSelection?" answer-bad":"")):"");const inp=document.createElement("input");inp.type="radio";inp.name="answer-"+key;inp.dataset.question=key;inp.value=v;inp.checked=selected;inp.disabled=checked[key];const span=document.createElement("span");span.textContent=l;lab.append(inp,span);w.querySelector(".options").append(lab)});c.append(w);if(checked[key])feedback(q,key,w.querySelector(".feedback"))});const done=s.questions.every((_,n)=>checked[scenarioIndex+"-"+n]);$("checkBtn").hidden=done;$("nextBtn").hidden=!done;$("nextBtn").textContent=scenarioIndex===4?"Ver resultados":"Siguiente escenario";$("prevBtn").disabled=scenarioIndex===0}
+function checkScenario(){const s=scenarios[scenarioOrder[scenarioIndex]],missing=s.questions.filter((_,n)=>!selectedValues(scenarioIndex+"-"+n).length);if(missing.length){alert(`Responde los tres reactivos del escenario antes de continuar. Falta ${missing.length} respuesta${missing.length===1?"":"s"}.`);return}s.questions.forEach((_,n)=>{const key=scenarioIndex+"-"+n;answers[key]=selectedValues(key);checked[key]=true});render()}
+$("startBtn").addEventListener("click",()=>{scenarioOrder=shuffle(scenarios.map((_,i)=>i));$("intro").hidden=true;$("quizPanel").hidden=false;render();$("scenarioTitle").scrollIntoView({block:"start"})});$("checkBtn").addEventListener("click",checkScenario);$("prevBtn").addEventListener("click",()=>{if(scenarioIndex){scenarioIndex--;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}});$("nextBtn").addEventListener("click",()=>{if(scenarioIndex<4){scenarioIndex++;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}else showResults()});
+function getScore(){let total=0;const byDim={};dimensions.forEach(n=>byDim[n]={score:0,total:0});scenarioOrder.forEach((scenarioId,displayIndex)=>{const s=scenarios[scenarioId];s.questions.forEach((q,n)=>{const dn=dimensions[q.d];byDim[dn].total++;if(isCorrect(q,displayIndex+"-"+n)){total++;byDim[dn].score++}})});return{total,byDim}}
+function buildQuizResult(total,byDim,level){
+  const dim={};
+  Object.entries(byDim).forEach(([n,x])=>{dim[n]={correctas:x.score,erradas:x.total-x.score,total:x.total,porcentaje:Math.round(x.score/x.total*100)}});
+  const resp={};
+  scenarioOrder.forEach((sid,di)=>{const s=scenarios[sid];s.questions.forEach((q,n)=>{const key=di+"-"+n;resp["E"+(sid+1)+"-P"+(n+1)]={dimension:dimensions[q.d],seleccionada:(answers[key]||[]).join(","),correcta:q.a.join(","),resultado:isCorrect(q,key)?"Correcta":"Errada"}})});
+  return{puntaje:total,nivel:level,dimensiones:dim,respuestas:resp};
+}
+function showResults(){const {total,byDim}=getScore();$("quizPanel").hidden=true;$("finish").style.display="block";$("scoreNumber").textContent=total+"/15";let level,desc,rec;if(total<=5){level="Nivel inicial";desc="Se observan dificultades importantes en las habilidades examinadas.";rec="Prioriza la identificación de ideas principales, la elaboración de inferencias sencillas y la distinción entre afirmaciones y evidencias."}else if(total<=8){level="En desarrollo";desc="Reconoces información explícita, pero necesitas consolidar el análisis y la valoración crítica.";rec="Practica la identificación de tesis, razones y supuestos. Contrasta las conclusiones con los datos y revisa la representatividad de las fuentes."}else if(total<=11){level="Competente";desc="Presentas un desempeño satisfactorio en las habilidades de lectura crítica evaluadas.";rec="Profundiza en la evaluación de argumentos complejos, las explicaciones alternativas y los límites metodológicos de las investigaciones."}else if(total<=13){level="Avanzado";desc="Demuestras capacidad consistente para interpretar, contrastar y cuestionar información.";rec="Fortalece la transferencia de estas habilidades a textos científicos, argumentativos y de divulgación, atendiendo a sesgos y supuestos implícitos."}else{level="Sobresaliente";desc="Evidencias un desempeño alto en las tareas de lectura crítica de esta prueba.";rec="Continúa con textos de mayor complejidad, argumentos contrapuestos y evaluación de evidencia interdisciplinaria."}$("levelName").textContent=level;window.__quizResult=buildQuizResult(total,byDim,level);$("levelDescription").textContent=desc;$("dimensionResults").innerHTML="";Object.entries(byDim).forEach(([name,x])=>{const wrap=document.createElement("div");wrap.className="dimension";wrap.innerHTML=`<div class="dimension-top"><span>${name}</span><span>${x.score}/${x.total}</span></div><div class="bar"><div style="width:${x.score/x.total*100}%"></div></div>`;$("dimensionResults").append(wrap)});$("recommendation").innerHTML="<strong>Orientación de aprendizaje</strong><br>"+rec+"<br><br><small>Este resultado es diagnóstico y corresponde únicamente a los 15 reactivos distribuidos en 5 escenarios. No constituye una medición exhaustiva ni un diagnóstico psicométrico.</small>"}
+$("reviewBtn").addEventListener("click",()=>{$("finish").style.display="none";$("quizPanel").hidden=false;scenarioIndex=0;render()});$("restartBtn").addEventListener("click",()=>{scenarioIndex=0;scenarioOrder=[];answers={};checked={};$("finish").style.display="none";$("intro").hidden=false});
+</script>
+<script data-implementa-quiz="v2">
+(function(){
+  const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/pascualbravo.edu.co/s/AKfycbxhM8m0pWcTV6BVDLrAPTjFRnBnLQlLRpv66YjzRR8wqwWu4EQt9Pd7uLtFGEkayIqR/exec';
+  let sent = false;
+  const log = [];
+  function textOf(sel){const el=document.querySelector(sel);return el?(el.textContent||'').replace(/\s+/g,' ').trim():''}
+  function resultado(){
+    const r = window.__quizResult || {};
+    let puntaje = r.puntaje;
+    if(puntaje == null){const m = textOf('[id*="score" i],[class*="score" i],[id*="puntaje" i],[class*="puntaje" i]').match(/\d+([.,]\d+)?/); puntaje = m ? Number(m[0].replace(',','.')) : null;}
+    let nivel = r.nivel;
+    if(nivel == null){nivel = textOf('[id*="level" i],[class*="level" i],[id*="nivel" i],[class*="nivel" i]') || null;}
+    return {puntaje, nivel, dimensiones: r.dimensiones || {}, respuestas: r.respuestas || null};
+  }
+  function registrar(){
+    if(sent || !APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGA_AQUI')) return;
+    sent = true;
+    const res = resultado();
+    const form = document.querySelector('form');
+    let respuestas = res.respuestas;
+    if(!respuestas){
+      respuestas = form ? Object.fromEntries(new FormData(form)) : Object.fromEntries([...document.querySelectorAll('input,select,textarea')].filter(control=>control.name).map(control=>[control.name,control.value]));
+      if(log.length) respuestas.selecciones = log.slice();
+    }
+    const payload = { cuestionario:"Pensamiento crítico | Lectura crítica universitaria", version:"A", puntaje:res.puntaje, nivel:res.nivel, dimensiones:res.dimensiones, respuestas };
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',credentials:'include',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload)}).catch(function(){ sent=false; });
+  }
+  document.addEventListener('change',function(e){const t=e.target;if(t&&t.name&&(t.type==='radio'||t.type==='checkbox'))log.push({campo:t.name,valor:t.value,marcado:t.checked});},true);
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#restartBtn')){sent=false;log.length=0;window.__quizResult=null;}},true);
+  document.addEventListener('submit',registrar,true);
+  document.addEventListener('click',function(e){
+    const target = e.target.closest('button,[role="button"],input[type="submit"]');
+    if(!target) return;
+    const label = (target.textContent || target.value || '').toLowerCase();
+    if(/finalizar|ver resultados|enviar resultados|terminar|guardar resultados/.test(label)) setTimeout(registrar,0);
+  },true);
+})();
+</script></body>
+</html>

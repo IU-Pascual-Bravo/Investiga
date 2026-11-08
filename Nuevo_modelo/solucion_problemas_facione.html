@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Prueba interactiva de 5 escenarios para evaluar la solución de problemas con las habilidades de pensamiento crítico de Facione en estudiantes universitarios.">
+<title>Pensamiento crítico | Solución de problemas universitaria</title>
+<style>
+:root{
+  --ink:#17243a;--muted:#607086;--blue:#2457a6;--cyan:#16a6a1;
+  --paper:#f4f7fb;--card:#fff;--line:#dce4ef;--good:#16794b;
+  --bad:#b43b3b;--softgood:#e9f7ef;--softbad:#fff0ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#edf3fc,#f4fbfa);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.container{width:min(920px,94%);margin:32px auto 56px}
+header{background:linear-gradient(120deg,#173b78,#087f88);color:white;padding:30px clamp(20px,5vw,44px);
+  border-radius:22px;box-shadow:0 14px 35px #173b7825}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.85}
+h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.12;margin:10px 0}
+header p{max-width:720px;margin:12px 0 0;color:#e8f5ff}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.pill{background:#ffffff20;border:1px solid #ffffff40;padding:6px 11px;border-radius:999px;font-size:.82rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);
+  margin-top:20px;box-shadow:0 8px 24px #1c35500b}
+h2{font-size:1.25rem;margin:0 0 10px}
+.instructions{color:var(--muted);margin:0}
+.progress-head{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.9rem;margin-bottom:9px}
+.progress{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.tag{font-size:.76rem;font-weight:750;color:#24518b;background:#edf4ff;padding:5px 9px;border-radius:7px}
+.question{font-size:1.14rem;font-weight:700;margin:12px 0 18px}
+.options{display:grid;gap:10px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  cursor:pointer;transition:.15s;background:white}
+.option:hover{border-color:#8caedb;background:#f8fbff}
+.option:has(input:checked){border-color:var(--blue);background:#eef5ff}
+.option.answer-good{border-color:#78c79a;background:var(--softgood);color:#145d3b}
+.option.answer-bad{border-color:#e5a29c;background:var(--softbad);color:#8d2929}
+.option input{margin-top:5px;accent-color:var(--blue);flex:0 0 auto}
+.option span{flex:1}
+.option.disabled{cursor:default}
+.feedback{margin-top:17px;border-radius:12px;padding:14px 16px;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--softgood);border:1px solid #b9e3ca;color:#145d3b}
+.feedback.bad{background:var(--softbad);border:1px solid #f0c5c1;color:#8d2929}
+.feedback strong{display:block;margin-bottom:4px}
+.scenario-intro{color:var(--muted);margin:0 0 18px}
+.scenario-question{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.scenario-question:first-child{border-top:0;padding-top:0;margin-top:0}
+.scenario-question .tags{margin-top:0}
+.stimulus{background:#f1f6fc;border-left:4px solid var(--cyan);border-radius:10px;padding:16px 18px;margin:16px 0 22px;white-space:pre-line}
+.hint{margin-top:12px}
+.hint summary{color:var(--blue);font-weight:700;cursor:pointer}
+.hint p{color:var(--muted);margin:8px 0 0;font-size:.92rem}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:.95rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#31445e}
+#finish{display:none}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0}
+.score-number{font-size:2.6rem;font-weight:850;color:var(--blue);line-height:1}
+.level{font-weight:800;font-size:1.05rem}
+.result-intro{color:var(--muted)}
+.dimension{margin:18px 0}
+.dimension-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:.92rem}
+.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:15px;background:#f1f6fc;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin:22px 0}
+@media(max-width:560px){.container{margin:14px auto 35px}header{border-radius:16px}.panel{border-radius:14px}.actions button{flex:1}}
+@media print{body{background:white}.container{width:100%;margin:0}header{box-shadow:none}.actions,#quizPanel,footer{display:none!important}#finish{display:block!important}.panel{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="eyebrow">Evaluación universitaria · Instrumento diagnóstico</div>
+  <h1>Pensamiento crítico: solución de problemas</h1>
+  <p>Prueba interactiva de 5 escenarios para valorar, con las habilidades centrales de Facione (interpretación, análisis, evaluación, inferencia, explicación y autorregulación), cómo se resuelven problemas en contextos universitarios.</p>
+  <div class="meta"><span class="pill">5 escenarios</span><span class="pill">15 preguntas</span><span class="pill">Nivel universitario</span></div>
+</header>
+
+<section class="panel" id="intro">
+  <h2>Antes de comenzar</h2>
+  <p class="instructions">Lee cada escenario con atención y responde sus tres preguntas antes de continuar. Cada pregunta tiene cuatro opciones y una sola respuesta correcta; elige la mejor. Al finalizar verás tu resultado global y el desempeño por dimensión.</p>
+  <p class="instructions" style="margin-top:10px"><strong>Duración sugerida:</strong> 15–25 minutos. Cada pregunta vale un punto.</p>
+  <div class="actions"><span></span><button class="primary" id="startBtn">Comenzar cuestionario</button></div>
+</section>
+
+<section class="panel" id="quizPanel" hidden>
+  <div class="progress-head"><span id="progressText">Escenario 1 de 5</span><span id="progressPct">20 %</span></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <h2 id="scenarioTitle"></h2>
+  <p class="scenario-intro" id="scenarioIntro"></p>
+  <div class="stimulus" id="stimulusText"></div>
+  <div id="scenarioQuestions"></div>
+  <div class="actions">
+    <button class="secondary" id="prevBtn">Escenario anterior</button>
+    <button class="primary" id="checkBtn">Comprobar escenario</button>
+    <button class="primary" id="nextBtn" hidden>Siguiente escenario</button>
+  </div>
+</section>
+
+<section class="panel" id="finish">
+  <h2>Resultados de la evaluación</h2>
+  <p class="result-intro">Tu resultado representa el desempeño en estas tareas de solución de problemas. Revisa tanto el puntaje global como las dimensiones.</p>
+  <div class="score"><div class="score-number" id="scoreNumber">0/15</div><div><div class="level" id="levelName"></div><div class="result-intro" id="levelDescription"></div></div></div>
+  <h2 style="margin-top:25px">Desempeño por dimensión</h2>
+  <div id="dimensionResults"></div>
+  <div class="result-note" id="recommendation"></div>
+  <div class="actions"><button class="secondary" id="reviewBtn">Revisar respuestas</button><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="restartBtn">Repetir cuestionario</button></div>
+</section>
+<footer>Cuestionario diagnóstico de solución de problemas · Modelo de Facione · Uso educativo</footer>
+</div>
+
+<script>
+const dimensions = [
+  "Interpretación",
+  "Análisis",
+  "Evaluación",
+  "Inferencia",
+  "Explicación",
+  "Autorregulación"
+];
+
+const $=id=>document.getElementById(id);
+const scenarios=[
+ {title:"Escenario 1: La deserción en primer semestre",intro:"Informe institucional · Delimitar el problema",stimulus:"Informe de Bienestar Universitario (extracto)\n\nEn el programa de Administración, la deserción del primer semestre pasó del 12 % al 21 % entre 2023 y 2025. La dirección del programa atribuye el aumento a «falta de compromiso de los nuevos estudiantes» y propone un curso obligatorio de motivación.\n\nDatos disponibles: el 58 % de quienes desertaron trabajaba más de 20 horas semanales; el 64 % reprobó Cálculo I en el primer corte; en 2025 el programa pasó de dos a una sola jornada diurna; y las encuestas de salida solo las respondió el 30 % de los desertores.",questions:[
+  {d:0,q:"¿Cuál es la formulación más precisa del problema que muestra el informe?",o:[["A","Los estudiantes nuevos carecen de motivación y por eso abandonan sus estudios."],["B","La deserción subió nueve puntos porcentuales y sus causas aún no están establecidas."],["C","El programa debe ofrecer un curso de motivación para reducir la deserción actual."],["D","Cálculo I es la asignatura responsable del abandono en el primer semestre."]],a:["B"]},
+  {d:1,q:"¿Qué relación entre los datos conviene examinar para identificar posibles causas?",o:[["A","Cuántos desertores trabajaban y reprobaron Cálculo I, comparados con quienes permanecieron."],["B","Los nombres de los docentes que dictaron Cálculo I durante cada semestre analizado."],["C","La opinión de la dirección sobre la motivación de las cohortes más recientes."],["D","El número de estudiantes que respondieron la encuesta de salida cada año."]],a:["A"]},
+  {d:3,q:"A partir de la información disponible, ¿qué inferencia está mejor sustentada?",o:[["A","Los estudiantes que trabajan abandonan porque priorizan el ingreso económico sobre su formación profesional."],["B","La encuesta de salida demuestra que la mayoría no desertó por motivos de tipo académico."],["C","Reducir las jornadas diurnas pudo dificultar la permanencia de quienes trabajan, aunque falta confirmarlo."],["D","El curso de motivación eliminará la deserción asociada con la reprobación de Cálculo I en el semestre."]],a:["C"]}]},
+ {title:"Escenario 2: Filas en la cafetería",intro:"Caso institucional · Generar y comparar alternativas",stimulus:"La cafetería central atiende a 2.500 personas al día. Entre las 12:00 m. y la 1:00 p. m. las filas llegan a 35 minutos, porque el 70 % de las clases termina a las 12:00 m. Cuenta con tres cajas, una cocina de capacidad limitada y un presupuesto de $8 millones para mejoras.\n\nPropuestas del comité:\n1) Contratar dos cajeros adicionales (costo: $6 millones por semestre).\n2) Habilitar pedido y pago anticipado por aplicación (costo: $5 millones).\n3) Escalonar la salida de clases en 15 minutos (costo: $0; requiere acuerdo con las facultades).\n\nUna medición mostró que la cocina prepara unos 40 pedidos por minuto y que las cajas pueden cobrar unos 55 por minuto.",questions:[
+  {d:1,q:"¿Qué análisis permite identificar el cuello de botella real del servicio?",o:[["A","Contar cuántas personas abandonan la fila antes de llegar a las cajas de cobro."],["B","Preguntar a los usuarios cuál de las tres propuestas les parece más conveniente."],["C","Comparar el costo de cada propuesta para escoger la que menos presupuesto requiera."],["D","Contrastar la capacidad de la cocina y la de las cajas con la demanda de la hora pico."]],a:["D"]},
+  {d:2,q:"Al evaluar las propuestas con criterios de costo y efecto sobre el cuello de botella, ¿cuál es la más prometedora?",o:[["A","Contratar cajeros, porque es la única medida que atiende directamente la queja de los usuarios."],["B","Escalonar las salidas, porque reduce la demanda simultánea sobre la cocina sin costo directo."],["C","Habilitar la aplicación, porque la tecnología siempre agiliza la atención en horas de mayor afluencia."],["D","Aplicar las tres a la vez, porque el presupuesto alcanza y así ninguna opción se descarta."]],a:["B"]},
+  {d:4,q:"El comité debe justificar su recomendación ante el consejo de facultades. ¿Cuál justificación es más sólida?",o:[["A","«Recomendamos escalonar salidas: la cocina limita el servicio y esto reduce el pico sin gasto, pese a requerir acuerdos.»"],["B","«Recomendamos escalonar salidas porque no cuesta nada y los estudiantes aceptarán sin dificultad el cambio de horario.»"],["C","«Recomendamos contratar cajeros porque en otras universidades el servicio mejoró cuando se aumentó el personal de caja.»"],["D","«Recomendamos la aplicación porque es una solución moderna que proyecta una imagen innovadora de la universidad ante todos.»"]],a:["A"]}]},
+ {title:"Escenario 3: Un piloto de tutorías",intro:"Informe de resultados · Evaluar una solución",stimulus:"Durante el primer semestre de 2026, la Facultad de Ingeniería ofreció tutorías de Física I a 60 estudiantes que se inscribieron voluntariamente. La tasa de aprobación fue del 78 % entre los tutorados y del 61 % entre el resto de estudiantes (420 personas). En el mismo semestre cambió el docente de tres de los seis grupos y se introdujo un taller de laboratorio obligatorio.\n\nEl coordinador concluye: «Las tutorías funcionaron; hay que extenderlas a toda la facultad». Un docente señala que los tutorados eran quienes más asistían a clase.",questions:[
+  {d:2,q:"¿Qué limitación pesa más sobre la conclusión del coordinador?",o:[["A","Que 60 estudiantes representan una cantidad demasiado pequeña para calcular una tasa de aprobación."],["B","Que la tasa de aprobación no es un indicador apropiado para valorar un programa de apoyo."],["C","Que los tutorados se inscribieron voluntariamente y otros cambios coincidieron con el piloto."],["D","Que el coordinador es parte interesada y por eso su conclusión carece de todo valor."]],a:["C"]},
+  {d:3,q:"¿Qué se puede inferir razonablemente de la diferencia de 17 puntos (78 % frente a 61 %)?",o:[["A","Que las tutorías elevan en 17 puntos la aprobación de cualquier estudiante que decida tomarlas en el semestre."],["B","Que quienes no se inscribieron tenían menor capacidad de aprendizaje que los estudiantes que sí lo hicieron."],["C","Que el nuevo taller de laboratorio obligatorio es la causa principal del mejor resultado de los tutorados."],["D","Que los tutorados aprobaron más, pero la diferencia no puede atribuirse por completo a las tutorías."]],a:["D"]},
+  {d:0,q:"¿Cómo debe interpretarse que los tutorados fueran quienes más asistían a clase?",o:[["A","Que la asistencia a clase explica por completo la aprobación y vuelve irrelevante el piloto."],["B","Que la asistencia pudo influir en la aprobación y confundir el efecto atribuido a las tutorías."],["C","Que los estudiantes no tutorados faltaron a clase por motivos ajenos a su voluntad y control."],["D","Que el piloto fracasó porque los tutorados habrían aprobado igualmente aun sin recibir ningún apoyo."]],a:["B"]}]},
+ {title:"Escenario 4: Un proyecto con retraso",intro:"Dilema de equipo · Decidir y justificar",stimulus:"Un equipo de cuatro estudiantes de Ingeniería de Sistemas debe entregar en tres semanas una aplicación móvil para una asociación de vendedores de plaza, y lleva dos semanas de retraso. Pendiente: módulo de pagos (6 jornadas de trabajo), inventario (5), reportes (4) y pruebas con usuarios (4). El equipo dispone de unas 15 jornadas efectivas.\n\nOpciones planteadas:\n1) Entregar pagos, inventario y reportes, sin pruebas con usuarios.\n2) Pedir a la asociación una prórroga de una semana.\n3) Recortar los reportes y entregar pagos, inventario y pruebas.\n\nLa asociación informó que lo esencial es registrar ventas e inventario, y que su temporada alta comienza en cuatro semanas.",questions:[
+  {d:4,q:"¿Cuál es la justificación más completa para elegir la opción 3?",o:[["A","Cabe en las 15 jornadas, conserva lo esencial para la asociación e incluye pruebas que reducen fallas."],["B","Evita pedir ayuda a la asociación y demuestra que el equipo resuelve solo cualquier retraso que surja."],["C","Es la opción con menos trabajo pendiente y permite que todos los integrantes descansen antes de entregar."],["D","Es la que menos le desagradará al docente y a los demás grupos del curso, según el equipo."]],a:["A"]},
+  {d:1,q:"Al analizar la prórroga (opción 2), ¿qué factor debería pesar más?",o:[["A","Que pedir más tiempo puede ser visto como una falta de responsabilidad del equipo."],["B","Que una semana extra permitiría trabajar con menos presión durante las jornadas restantes."],["C","Que la entrega pasaría a la semana en que empieza la temporada alta de la asociación."],["D","Que otros equipos del curso probablemente también soliciten una prórroga al mismo docente."]],a:["C"]},
+  {d:2,q:"Un integrante dice: «Entreguemos sin pruebas; si hay fallas, las corregimos en temporada alta». ¿Cómo se valora ese argumento?",o:[["A","Es sólido, porque corregir después de la entrega resulta siempre más económico que probar antes de ella."],["B","Es sólido, porque la asociación aceptará cualquier falla mientras la aplicación incluya todos sus módulos."],["C","Es débil, porque las pruebas con usuarios nunca detectan fallas que afecten el uso real del sistema."],["D","Es débil, porque supone poder corregir en el momento en que la asociación más necesita la aplicación."]],a:["D"]}]},
+ {title:"Escenario 5: Mirar el propio proceso",intro:"Caso individual · Autorregulación",stimulus:"Camila cursa Programación II. En el primer proyecto obtuvo 2,8 y su explicación inicial fue: «El profesor califica muy duro». Al revisar su bitácora encontró que, en la última semana, dedicó 3 de las 12 horas que había previsto y que no ejecutó las pruebas automáticas antes de entregar. En la retroalimentación, el docente señaló tres errores de manejo de excepciones que ya habían aparecido en un taller anterior.\n\nCamila quiere mejorar en el siguiente proyecto, que se entregará en cuatro semanas.",questions:[
+  {d:5,q:"¿Qué acción refleja mejor una autorregulación efectiva por parte de Camila?",o:[["A","Pedir al profesor que revise de nuevo la calificación sin cambiar su forma de trabajar."],["B","Contrastar su explicación inicial con la bitácora y revisar qué parte de su proceso pudo fallar."],["C","Cambiar de grupo de estudio para encontrar compañeros que valoren su esfuerzo de manera más justa."],["D","Dedicar muchas más horas al siguiente proyecto sin modificar la forma en que verifica su trabajo."]],a:["B"]},
+  {d:5,q:"Para el próximo proyecto, ¿qué plan de mejora es más adecuado?",o:[["A","Programar avances semanales, ejecutar las pruebas antes de entregar y repasar los errores de manejo de excepciones."],["B","Estudiar más horas durante la última semana para compensar el tiempo perdido en las anteriores."],["C","Evitar los temas donde falló y escoger funciones que ya domina para reducir la posibilidad de error."],["D","Pedir ejemplos de proyectos aprobados y copiar su estructura para asegurar una calificación aceptable."]],a:["A"]},
+  {d:0,q:"¿Cómo se interpreta mejor la retroalimentación sobre errores repetidos de manejo de excepciones?",o:[["A","Como una muestra de que el docente es muy exigente con los proyectos de este curso."],["B","Como un dato poco útil, porque un taller anterior no tuvo relación con el proyecto."],["C","Como una señal de que hay un aprendizaje pendiente que persiste y requiere una atención específica."],["D","Como una prueba de que Camila no tiene la capacidad necesaria para programar de manera adecuada."]],a:["C"]}]}
+];
+let scenarioIndex=0,scenarioOrder=[],answers={},checked={};
+const shuffle=items=>items.sort(()=>Math.random()-.5);
+function selectedValues(i){return [...document.querySelectorAll(`input[data-question="${i}"]:checked`)].map(x=>x.value)}
+function isCorrect(q,i){const a=answers[i]||[];return checked[i]&&q.a.every(v=>a.includes(v))&&a.every(v=>q.a.includes(v))}
+function feedback(q,i,box){box.className="feedback show "+(isCorrect(q,i)?"good":"bad");const title=document.createElement("strong");title.textContent=isCorrect(q,i)?"Respuesta correcta":"Respuesta incorrecta";box.append(title);const p=document.createElement("p");p.textContent=isCorrect(q,i)?"Tu respuesta coincide con el razonamiento esperado.":`La respuesta correcta es ${q.a.join(", ")}.`;box.append(p)}
+function render(){const s=scenarios[scenarioOrder[scenarioIndex]],pct=Math.round((scenarioIndex+1)/5*100);$("progressText").textContent=`Escenario ${scenarioIndex+1} de 5`;$("progressPct").textContent=pct+" %";$("progressBar").style.width=pct+"%";$("scenarioTitle").textContent=s.title.replace(/^Escenario \d+/,`Escenario ${scenarioIndex+1}`);$("scenarioIntro").textContent=s.intro;$("stimulusText").textContent=s.stimulus;const c=$("scenarioQuestions");c.innerHTML="";s.questions.forEach((q,n)=>{const key=scenarioIndex+"-"+n,w=document.createElement("article"),chosen=answers[key]||[];w.className="scenario-question";w.innerHTML=`<div class="tags"><span class="tag">Reactivo ${n+1} de 3</span><span class="tag">${dimensions[q.d]}</span></div><div class="question"></div><div class="options"></div><div class="feedback" aria-live="polite"></div>`;w.querySelector(".question").textContent=q.q;q.o.forEach(([v,l])=>{const lab=document.createElement("label");const selected=chosen.includes(v);const optionCorrect=q.a.includes(v);const wrongSelection=selected&&!isCorrect(q,key);lab.className="option"+(checked[key]?" disabled":"")+(checked[key]?(optionCorrect?" answer-good":(wrongSelection?" answer-bad":"")):"");const inp=document.createElement("input");inp.type="radio";inp.name="answer-"+key;inp.dataset.question=key;inp.value=v;inp.checked=selected;inp.disabled=checked[key];const span=document.createElement("span");span.textContent=l;lab.append(inp,span);w.querySelector(".options").append(lab)});c.append(w);if(checked[key])feedback(q,key,w.querySelector(".feedback"))});const done=s.questions.every((_,n)=>checked[scenarioIndex+"-"+n]);$("checkBtn").hidden=done;$("nextBtn").hidden=!done;$("nextBtn").textContent=scenarioIndex===4?"Ver resultados":"Siguiente escenario";$("prevBtn").disabled=scenarioIndex===0}
+function checkScenario(){const s=scenarios[scenarioOrder[scenarioIndex]],missing=s.questions.filter((_,n)=>!selectedValues(scenarioIndex+"-"+n).length);if(missing.length){alert(`Responde los tres reactivos del escenario antes de continuar. Falta ${missing.length} respuesta${missing.length===1?"":"s"}.`);return}s.questions.forEach((_,n)=>{const key=scenarioIndex+"-"+n;answers[key]=selectedValues(key);checked[key]=true});render()}
+$("startBtn").addEventListener("click",()=>{scenarioOrder=shuffle(scenarios.map((_,i)=>i));$("intro").hidden=true;$("quizPanel").hidden=false;render();$("scenarioTitle").scrollIntoView({block:"start"})});$("checkBtn").addEventListener("click",checkScenario);$("prevBtn").addEventListener("click",()=>{if(scenarioIndex){scenarioIndex--;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}});$("nextBtn").addEventListener("click",()=>{if(scenarioIndex<4){scenarioIndex++;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}else showResults()});
+function getScore(){let total=0;const byDim={};dimensions.forEach(n=>byDim[n]={score:0,total:0});scenarioOrder.forEach((scenarioId,displayIndex)=>{const s=scenarios[scenarioId];s.questions.forEach((q,n)=>{const dn=dimensions[q.d];byDim[dn].total++;if(isCorrect(q,displayIndex+"-"+n)){total++;byDim[dn].score++}})});return{total,byDim}}
+function buildQuizResult(total,byDim,level){
+  const dim={};
+  Object.entries(byDim).forEach(([n,x])=>{dim[n]={correctas:x.score,erradas:x.total-x.score,total:x.total,porcentaje:x.total?Math.round(x.score/x.total*100):0}});
+  const resp={};
+  scenarioOrder.forEach((sid,di)=>{const s=scenarios[sid];s.questions.forEach((q,n)=>{const key=di+"-"+n;resp["E"+(sid+1)+"-P"+(n+1)]={dimension:dimensions[q.d],seleccionada:(answers[key]||[]).join(","),correcta:q.a.join(","),resultado:isCorrect(q,key)?"Correcta":"Errada"}})});
+  return{puntaje:total,nivel:level,dimensiones:dim,respuestas:resp};
+}
+function showResults(){const {total,byDim}=getScore();$("quizPanel").hidden=true;$("finish").style.display="block";$("scoreNumber").textContent=total+"/15";let level,desc,rec;if(total<=5){level="Nivel inicial";desc="Se observan dificultades importantes para abordar los problemas planteados.";rec="Practica delimitar el problema antes de proponer soluciones, distinguir síntomas de causas y revisar qué datos respaldan cada afirmación."}else if(total<=8){level="En desarrollo";desc="Reconoces los elementos de un problema, pero necesitas consolidar el análisis y la evaluación.";rec="Compara alternativas con criterios explícitos y revisa explicaciones posibles antes de atribuir un resultado a una intervención."}else if(total<=11){level="Competente";desc="Presentas un desempeño satisfactorio al resolver los problemas evaluados.";rec="Profundiza en la evaluación de resultados con variables que confunden, en la justificación de tus decisiones y en la revisión de tu propio proceso."}else if(total<=13){level="Avanzado";desc="Demuestras capacidad consistente para analizar, decidir y justificar soluciones.";rec="Transfiere estas habilidades a problemas abiertos con información incompleta y explica tus decisiones ante personas con intereses distintos."}else{level="Sobresaliente";desc="Evidencias un desempeño alto en las tareas de solución de problemas de esta prueba.";rec="Continúa con problemas de mayor complejidad, con restricciones en conflicto y datos ambiguos, y practica la autorregulación de forma sistemática."}$("levelName").textContent=level;window.__quizResult=buildQuizResult(total,byDim,level);$("levelDescription").textContent=desc;$("dimensionResults").innerHTML="";Object.entries(byDim).forEach(([name,x])=>{const wrap=document.createElement("div");wrap.className="dimension";wrap.innerHTML=`<div class="dimension-top"><span>${name}</span><span>${x.score}/${x.total}</span></div><div class="bar"><div style="width:${x.score/x.total*100}%"></div></div>`;$("dimensionResults").append(wrap)});$("recommendation").innerHTML="<strong>Orientación de aprendizaje</strong><br>"+rec+"<br><br><small>Este resultado es diagnóstico y corresponde únicamente a los 15 reactivos distribuidos en 5 escenarios. No constituye una medición exhaustiva ni un diagnóstico psicométrico.</small>"}
+$("reviewBtn").addEventListener("click",()=>{$("finish").style.display="none";$("quizPanel").hidden=false;scenarioIndex=0;render()});$("restartBtn").addEventListener("click",()=>{scenarioIndex=0;scenarioOrder=[];answers={};checked={};$("finish").style.display="none";$("intro").hidden=false});
+</script>
+<script data-implementa-quiz="v2">
+(function(){
+  const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/pascualbravo.edu.co/s/AKfycbz58nXXQgkKpmGU5d0F5d5Hh_hiYuCfQ9ryf3oAXqIjo_Rf7nUogJD22iW0WIs4vtBMmg/exec';
+  let sent = false;
+  const log = [];
+  function textOf(sel){const el=document.querySelector(sel);return el?(el.textContent||'').replace(/\s+/g,' ').trim():''}
+  function resultado(){
+    const r = window.__quizResult || {};
+    let puntaje = r.puntaje;
+    if(puntaje == null){const m = textOf('[id*="score" i],[class*="score" i],[id*="puntaje" i],[class*="puntaje" i]').match(/\d+([.,]\d+)?/); puntaje = m ? Number(m[0].replace(',','.')) : null;}
+    let nivel = r.nivel;
+    if(nivel == null){nivel = textOf('[id*="level" i],[class*="level" i],[id*="nivel" i],[class*="nivel" i]') || null;}
+    return {puntaje, nivel, dimensiones: r.dimensiones || {}, respuestas: r.respuestas || null};
+  }
+  function registrar(){
+    if(sent || !APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGA_AQUI')) return;
+    sent = true;
+    const res = resultado();
+    const form = document.querySelector('form');
+    let respuestas = res.respuestas;
+    if(!respuestas){
+      respuestas = form ? Object.fromEntries(new FormData(form)) : Object.fromEntries([...document.querySelectorAll('input,select,textarea')].filter(control=>control.name).map(control=>[control.name,control.value]));
+      if(log.length) respuestas.selecciones = log.slice();
+    }
+    const payload = { cuestionario:"Pensamiento crítico | Solución de problemas universitaria", version:"A", puntaje:res.puntaje, nivel:res.nivel, dimensiones:res.dimensiones, respuestas };
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',credentials:'include',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload)}).catch(function(){ sent=false; });
+  }
+  document.addEventListener('change',function(e){const t=e.target;if(t&&t.name&&(t.type==='radio'||t.type==='checkbox'))log.push({campo:t.name,valor:t.value,marcado:t.checked});},true);
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#restartBtn')){sent=false;log.length=0;window.__quizResult=null;}},true);
+  document.addEventListener('submit',registrar,true);
+  document.addEventListener('click',function(e){
+    const target = e.target.closest('button,[role="button"],input[type="submit"]');
+    if(!target) return;
+    const label = (target.textContent || target.value || '').toLowerCase();
+    if(/finalizar|ver resultados|enviar resultados|terminar|guardar resultados/.test(label)) setTimeout(registrar,0);
+  },true);
+})();
+</script></body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Prueba interactiva de 5 escenarios para evaluar el pensamiento crítico en competencia matemática, con situaciones al estilo PISA, en estudiantes universitarios.">
+<title>Pensamiento crítico | Competencia matemática universitaria</title>
+<style>
+:root{
+  --ink:#17243a;--muted:#607086;--blue:#2457a6;--cyan:#16a6a1;
+  --paper:#f4f7fb;--card:#fff;--line:#dce4ef;--good:#16794b;
+  --bad:#b43b3b;--softgood:#e9f7ef;--softbad:#fff0ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#edf3fc,#f4fbfa);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.container{width:min(920px,94%);margin:32px auto 56px}
+header{background:linear-gradient(120deg,#173b78,#087f88);color:white;padding:30px clamp(20px,5vw,44px);
+  border-radius:22px;box-shadow:0 14px 35px #173b7825}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.85}
+h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.12;margin:10px 0}
+header p{max-width:720px;margin:12px 0 0;color:#e8f5ff}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.pill{background:#ffffff20;border:1px solid #ffffff40;padding:6px 11px;border-radius:999px;font-size:.82rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);
+  margin-top:20px;box-shadow:0 8px 24px #1c35500b}
+h2{font-size:1.25rem;margin:0 0 10px}
+.instructions{color:var(--muted);margin:0}
+.progress-head{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.9rem;margin-bottom:9px}
+.progress{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.tag{font-size:.76rem;font-weight:750;color:#24518b;background:#edf4ff;padding:5px 9px;border-radius:7px}
+.question{font-size:1.14rem;font-weight:700;margin:12px 0 18px}
+.options{display:grid;gap:10px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  cursor:pointer;transition:.15s;background:white}
+.option:hover{border-color:#8caedb;background:#f8fbff}
+.option:has(input:checked){border-color:var(--blue);background:#eef5ff}
+.option.answer-good{border-color:#78c79a;background:var(--softgood);color:#145d3b}
+.option.answer-bad{border-color:#e5a29c;background:var(--softbad);color:#8d2929}
+.option input{margin-top:5px;accent-color:var(--blue);flex:0 0 auto}
+.option span{flex:1}
+.option.disabled{cursor:default}
+.feedback{margin-top:17px;border-radius:12px;padding:14px 16px;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--softgood);border:1px solid #b9e3ca;color:#145d3b}
+.feedback.bad{background:var(--softbad);border:1px solid #f0c5c1;color:#8d2929}
+.feedback strong{display:block;margin-bottom:4px}
+.scenario-intro{color:var(--muted);margin:0 0 18px}
+.scenario-question{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.scenario-question:first-child{border-top:0;padding-top:0;margin-top:0}
+.scenario-question .tags{margin-top:0}
+.stimulus{background:#f1f6fc;border-left:4px solid var(--cyan);border-radius:10px;padding:16px 18px;margin:16px 0 22px;white-space:pre-line}
+.hint{margin-top:12px}
+.hint summary{color:var(--blue);font-weight:700;cursor:pointer}
+.hint p{color:var(--muted);margin:8px 0 0;font-size:.92rem}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:.95rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#31445e}
+#finish{display:none}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0}
+.score-number{font-size:2.6rem;font-weight:850;color:var(--blue);line-height:1}
+.level{font-weight:800;font-size:1.05rem}
+.result-intro{color:var(--muted)}
+.dimension{margin:18px 0}
+.dimension-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:.92rem}
+.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:15px;background:#f1f6fc;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin:22px 0}
+@media(max-width:560px){.container{margin:14px auto 35px}header{border-radius:16px}.panel{border-radius:14px}.actions button{flex:1}}
+@media print{body{background:white}.container{width:100%;margin:0}header{box-shadow:none}.actions,#quizPanel,footer{display:none!important}#finish{display:block!important}.panel{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="eyebrow">Evaluación universitaria · Instrumento diagnóstico</div>
+  <h1>Pensamiento crítico: competencia matemática</h1>
+  <p>Prueba interactiva de 5 escenarios, al estilo de las situaciones de PISA, para valorar cómo razonas con cantidades, datos e incertidumbre: razonamiento verbal, análisis de argumentos, comprobación de hipótesis, probabilidad y toma de decisiones.</p>
+  <div class="meta"><span class="pill">5 escenarios</span><span class="pill">15 preguntas</span><span class="pill">Nivel universitario</span></div>
+</header>
+
+<section class="panel" id="intro">
+  <h2>Antes de comenzar</h2>
+  <p class="instructions">Lee cada escenario con atención y responde sus tres preguntas antes de continuar. Selecciona una única respuesta en cada pregunta; puedes usar calculadora y papel para los cálculos. Al finalizar verás tu resultado global y el desempeño por dimensión.</p>
+  <p class="instructions" style="margin-top:10px"><strong>Duración sugerida:</strong> 15–25 minutos. Cada pregunta vale un punto.</p>
+  <div class="actions"><span></span><button class="primary" id="startBtn">Comenzar cuestionario</button></div>
+</section>
+
+<section class="panel" id="quizPanel" hidden>
+  <div class="progress-head"><span id="progressText">Escenario 1 de 5</span><span id="progressPct">20 %</span></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <h2 id="scenarioTitle"></h2>
+  <p class="scenario-intro" id="scenarioIntro"></p>
+  <div class="stimulus" id="stimulusText"></div>
+  <div id="scenarioQuestions"></div>
+  <div class="actions">
+    <button class="secondary" id="prevBtn">Escenario anterior</button>
+    <button class="primary" id="checkBtn">Comprobar escenario</button>
+    <button class="primary" id="nextBtn" hidden>Siguiente escenario</button>
+  </div>
+</section>
+
+<section class="panel" id="finish">
+  <h2>Resultados de la evaluación</h2>
+  <p class="result-intro">Tu resultado representa el desempeño en estas tareas de pensamiento crítico matemático. Revisa tanto el puntaje global como las dimensiones.</p>
+  <div class="score"><div class="score-number" id="scoreNumber">0/15</div><div><div class="level" id="levelName"></div><div class="result-intro" id="levelDescription"></div></div></div>
+  <h2 style="margin-top:25px">Desempeño por dimensión</h2>
+  <div id="dimensionResults"></div>
+  <div class="result-note" id="recommendation"></div>
+  <div class="actions"><button class="secondary" id="reviewBtn">Revisar respuestas</button><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="restartBtn">Repetir cuestionario</button></div>
+</section>
+<footer>Cuestionario diagnóstico de pensamiento crítico matemático · Uso educativo</footer>
+</div>
+
+<script>
+const dimensions = [
+  "Razonamiento verbal",
+  "Análisis de argumentos",
+  "Comprobación de hipótesis",
+  "Probabilidad e incertidumbre",
+  "Toma de decisiones y solución de problemas"
+];
+
+const $=id=>document.getElementById(id);
+const scenarios=[
+ {title:"Escenario 1: Descuentos que no cuadran",intro:"Cambio y relaciones · Contexto comercial",stimulus:"Anuncio de una tienda de tecnología\n\n«En septiembre subimos un 25 % el precio de todos los portátiles. ¡En octubre los rebajamos un 25 %! Así que vuelven a su precio original».\n\nUn portátil costaba $2.000.000 en agosto.",questions:[
+  {d:0,q:"En el anuncio, ¿sobre qué cantidad se calcula la rebaja del 25 % de octubre?",o:[["A","Sobre el precio de agosto, $2.000.000, que es el precio original del portátil en la tienda."],["B","Sobre el precio vigente en octubre, $2.500.000, que ya incluye el aumento de septiembre."],["C","Sobre el valor del aumento de septiembre, es decir, sobre los $500.000 que se sumaron."],["D","Sobre el promedio de los precios de agosto y septiembre, es decir, sobre $2.250.000 en total."]],a:["B"]},
+  {d:1,q:"¿Es válida la conclusión del anuncio de que los portátiles «vuelven a su precio original»?",o:[["A","Sí, porque aumentar y rebajar el mismo porcentaje son operaciones inversas que se anulan."],["B","Sí, porque el 25 % se aplicó dos veces y el efecto neto sobre el precio final es del 0 %."],["C","No, porque el precio final queda en $2.125.000, que resulta superior al precio original."],["D","No, porque los porcentajes parten de bases distintas y el precio final es $1.875.000."]],a:["D"]},
+  {d:4,q:"Si el portátil subió a $2.500.000, ¿qué rebaja debía aplicarse en octubre para volver exactamente a $2.000.000?",o:[["A","Una rebaja del 25 %, porque debe igualar el porcentaje del aumento aplicado en septiembre."],["B","Una rebaja del 15 %, porque el aumento se calculó sobre un precio más bajo que el actual."],["C","Una rebaja del 20 %, porque los $500.000 del aumento equivalen al 20 % de $2.500.000."],["D","Una rebaja del 30 %, porque debe restarse el 25 % y un 5 % adicional por redondeo."]],a:["C"]}]},
+ {title:"Escenario 2: El detector de plagio",intro:"Incertidumbre y datos · Contexto institucional",stimulus:"Una universidad usa un programa que marca los trabajos sospechosos de plagio. Según el fabricante, el programa detecta el 95 % de los trabajos plagiados y marca por error el 5 % de los trabajos originales. En un semestre se entregaron 1.000 trabajos y una auditoría posterior confirmó que 100 de ellos eran plagiados.\n\nUna coordinadora afirma: «Si el programa marca un trabajo, hay un 95 % de probabilidad de que sea plagio; por eso podemos sancionar directamente a quien resulte marcado».",questions:[
+  {d:3,q:"Con los datos del semestre, ¿qué proporción de los trabajos marcados eran realmente plagiados?",o:[["A","Cerca del 68 %: de 140 trabajos marcados, 95 eran plagios y 45 eran originales."],["B","Cerca del 95 %, porque ese es el porcentaje de plagios que el programa logra detectar."],["C","Cerca del 50 %, porque cada trabajo solo puede estar plagiado o ser original."],["D","Cerca del 10 %, porque solo 100 de los 1.000 trabajos eran plagiados."]],a:["A"]},
+  {d:3,q:"Si en otro semestre solo 20 de los 1.000 trabajos fueran plagiados y el programa mantuviera sus tasas, ¿qué pasaría con esa proporción?",o:[["A","Seguiría en torno al 68 %, porque las tasas de detección del programa no han cambiado."],["B","Subiría por encima del 68 %, porque habría menos plagios que el programa pudiera confundir."],["C","Bajaría a cerca del 28 %, porque la mayoría de los trabajos que se marcarían serían originales."],["D","Bajaría a cerca del 2 %, porque esa sería la proporción de trabajos realmente plagiados."]],a:["C"]},
+  {d:1,q:"¿Qué error contiene el argumento de la coordinadora?",o:[["A","Generaliza a todas las universidades a partir de los resultados de un único semestre."],["B","Confunde que el programa detecte plagios con que todo trabajo marcado sea un plagio."],["C","Se apoya en la autoridad del fabricante sin examinar con rigor cómo se diseñó el programa."],["D","Ataca la honestidad de los estudiantes marcados en lugar de analizar los datos."]],a:["B"]}]},
+ {title:"Escenario 3: Tutorías y calificaciones",intro:"Cambio y relaciones · Contexto educativo",stimulus:"Una profesora de cálculo ofreció tutorías semanales voluntarias. Al final del semestre comparó los promedios de sus 120 estudiantes: los 40 que asistieron a tutorías obtuvieron 3,8 y los 80 que no asistieron obtuvieron 3,2. El registro académico muestra además que el 85 % de quienes asistieron ya tenía un promedio acumulado superior a 3,5 antes del semestre, frente al 35 % de quienes no asistieron.\n\nLa profesora concluye: «Las tutorías elevan en 0,6 puntos el rendimiento».",questions:[
+  {d:2,q:"¿Qué dato del enunciado pone más en duda la conclusión de la profesora?",o:[["A","Que solo 40 de los 120 estudiantes del curso asistieron a las tutorías semanales ofrecidas."],["B","Que la diferencia de 0,6 puntos es demasiado pequeña para que pueda considerarse relevante."],["C","Que las tutorías fueron semanales y no diarias, lo que limitó su posible efecto."],["D","Que la mayoría de quienes asistieron ya tenía un promedio acumulado alto antes del curso."]],a:["D"]},
+  {d:2,q:"¿Qué diseño permitiría comprobar mejor la hipótesis de que las tutorías mejoran el rendimiento?",o:[["A","Asignar al azar a los interesados a un grupo con tutorías y a otro sin ellas, y comparar."],["B","Repetir la comparación el próximo semestre con otra cohorte de estudiantes que asistan voluntariamente."],["C","Preguntar a los asistentes si consideran que las tutorías les ayudaron a mejorar sus notas."],["D","Comparar los promedios de los 40 asistentes con los de un curso de otra carrera distinta."]],a:["A"]},
+  {d:0,q:"¿Cuál de las siguientes redacciones describe con mayor precisión lo que muestran los datos?",o:[["A","Las tutorías causaron un aumento de 0,6 puntos en el promedio final de quienes asistieron."],["B","Los asistentes tuvieron 0,6 puntos más, pero esa diferencia no prueba el efecto de las tutorías."],["C","Los estudiantes que no asistieron perdieron 0,6 puntos por no aprovechar las tutorías."],["D","Asistir a las tutorías garantiza un promedio superior a 3,5 en el curso de cálculo."]],a:["B"]}]},
+ {title:"Escenario 4: La rifa estudiantil",intro:"Incertidumbre y datos · Contexto social",stimulus:"Un grupo estudiantil rifa un computador de $3.000.000. Vendió las 500 boletas a $10.000 cada una. Un compañero dice: «Compraré 10 boletas; con tantas ya tengo casi asegurado el premio». Otro responde: «El valor esperado de cada boleta es mucho menor que su precio, así que como negocio es malo».\n\nEl grupo anuncia que la rifa dejará una utilidad de $2.000.000.",questions:[
+  {d:1,q:"¿Qué valoración merece el argumento «con 10 boletas ya tengo casi asegurado el premio»?",o:[["A","Es débil: con 10 de 500 boletas, la probabilidad de ganar es de solo el 2 %."],["B","Es sólido: comprar varias boletas multiplica por diez la certeza de obtener el premio."],["C","Es débil, porque el sorteo deja de ser aleatorio cuando una persona compra varias boletas."],["D","Es sólido, porque con 10 boletas se supera el promedio de boletas por comprador."]],a:["A"]},
+  {d:3,q:"¿Cómo se interpreta que el valor esperado de una boleta sea de $6.000 ($3.000.000 entre 500 boletas)?",o:[["A","Que quien compre una boleta recibirá exactamente $6.000 de retorno por esa boleta."],["B","Que, repitiendo la rifa muchas veces, cada boleta devolvería en promedio $6.000 de $10.000."],["C","Que quien compre una boleta perderá exactamente $4.000, pase lo que pase en el sorteo."],["D","Que $6.000 es el precio justo, por lo que la rifa no deja ninguna utilidad al grupo."]],a:["B"]},
+  {d:4,q:"Para obtener una utilidad de al menos $3.500.000 con el mismo premio y las mismas 500 boletas, ¿cuál es el precio mínimo por boleta?",o:[["A","$7.000, porque $3.500.000 de utilidad entre las 500 boletas dan $7.000 por boleta."],["B","$10.000, porque el precio actual ya genera una utilidad y no necesita modificarse."],["C","$13.000, porque se necesitan $6.500.000 en total: el premio y la utilidad."],["D","$17.000, porque a los $5.000.000 recaudados se les suma la utilidad deseada de $3.500.000."]],a:["C"]}]},
+ {title:"Escenario 5: El salario promedio de los egresados",intro:"Incertidumbre y datos · Contexto ocupacional",stimulus:"Un posgrado anuncia: «El salario promedio de nuestros egresados es de $8.000.000 mensuales». El dato proviene de una encuesta voluntaria respondida por 10 de los 60 egresados. Los salarios reportados (en millones de pesos) fueron: 3; 3; 3,5; 3,5; 4; 4; 4,5; 5; 5,5 y 44.",questions:[
+  {d:0,q:"¿Cómo debe interpretarse correctamente el «salario promedio de $8.000.000» en este anuncio?",o:[["A","Que la mayoría de los egresados encuestados gana cerca de $8.000.000 al mes de trabajo."],["B","Que la mitad de los egresados encuestados gana más de $8.000.000 al mes de trabajo."],["C","Que repartir el total de salarios por igual entre los 10 encuestados daría $8.000.000 a cada uno."],["D","Que ninguno de los egresados encuestados gana menos de $8.000.000 mensuales en su empleo."]],a:["C"]},
+  {d:2,q:"¿Qué limitación impide comprobar con esta encuesta que los egresados ganan en promedio $8.000.000?",o:[["A","Que con solo 10 datos no es posible calcular un promedio con sentido matemático."],["B","Que los salarios están expresados en millones de pesos y no en pesos completos."],["C","Que los egresados debieron responder de forma anónima para que sus salarios fueran reales."],["D","Que respondieron 10 de 60 egresados de forma voluntaria y pueden no representar al resto."]],a:["D"]},
+  {d:4,q:"Una aspirante quiere estimar cuánto ganaría de forma típica un egresado. ¿Qué decisión es más razonable?",o:[["A","Usar la mediana, $4.000.000, porque no se distorsiona por el salario extremo de $44.000.000."],["B","Usar el promedio de $8.000.000, porque es la única medida que toma en cuenta todos los datos."],["C","Tomar $44.000.000 como referencia, porque demuestra hasta dónde puede llegar un egresado."],["D","Descartar la encuesta por completo, porque ninguna medida puede resumir diez salarios."]],a:["A"]}]}
+];
+let scenarioIndex=0,scenarioOrder=[],answers={},checked={};
+const shuffle=items=>items.sort(()=>Math.random()-.5);
+function selectedValues(i){return [...document.querySelectorAll(`input[data-question="${i}"]:checked`)].map(x=>x.value)}
+function isCorrect(q,i){const a=answers[i]||[];return checked[i]&&q.a.every(v=>a.includes(v))&&a.every(v=>q.a.includes(v))}
+function feedback(q,i,box){box.className="feedback show "+(isCorrect(q,i)?"good":"bad");const title=document.createElement("strong");title.textContent=isCorrect(q,i)?"Respuesta correcta":"Respuesta incorrecta";box.append(title);const p=document.createElement("p");p.textContent=isCorrect(q,i)?"Tu respuesta coincide con el razonamiento esperado.":`La respuesta correcta es ${q.a.join(", ")}.`;box.append(p)}
+function render(){const s=scenarios[scenarioOrder[scenarioIndex]],pct=Math.round((scenarioIndex+1)/5*100);$("progressText").textContent=`Escenario ${scenarioIndex+1} de 5`;$("progressPct").textContent=pct+" %";$("progressBar").style.width=pct+"%";$("scenarioTitle").textContent=s.title.replace(/^Escenario \d+/,`Escenario ${scenarioIndex+1}`);$("scenarioIntro").textContent=s.intro;$("stimulusText").textContent=s.stimulus;const c=$("scenarioQuestions");c.innerHTML="";s.questions.forEach((q,n)=>{const key=scenarioIndex+"-"+n,w=document.createElement("article"),chosen=answers[key]||[];w.className="scenario-question";w.innerHTML=`<div class="tags"><span class="tag">Reactivo ${n+1} de 3</span><span class="tag">${dimensions[q.d]}</span></div><div class="question"></div><div class="options"></div><div class="feedback" aria-live="polite"></div>`;w.querySelector(".question").textContent=q.q;q.o.forEach(([v,l])=>{const lab=document.createElement("label");const selected=chosen.includes(v);const optionCorrect=q.a.includes(v);const wrongSelection=selected&&!isCorrect(q,key);lab.className="option"+(checked[key]?" disabled":"")+(checked[key]?(optionCorrect?" answer-good":(wrongSelection?" answer-bad":"")):"");const inp=document.createElement("input");inp.type="radio";inp.name="answer-"+key;inp.dataset.question=key;inp.value=v;inp.checked=selected;inp.disabled=checked[key];const span=document.createElement("span");span.textContent=l;lab.append(inp,span);w.querySelector(".options").append(lab)});c.append(w);if(checked[key])feedback(q,key,w.querySelector(".feedback"))});const done=s.questions.every((_,n)=>checked[scenarioIndex+"-"+n]);$("checkBtn").hidden=done;$("nextBtn").hidden=!done;$("nextBtn").textContent=scenarioIndex===4?"Ver resultados":"Siguiente escenario";$("prevBtn").disabled=scenarioIndex===0}
+function checkScenario(){const s=scenarios[scenarioOrder[scenarioIndex]],missing=s.questions.filter((_,n)=>!selectedValues(scenarioIndex+"-"+n).length);if(missing.length){alert(`Responde los tres reactivos del escenario antes de continuar. Falta ${missing.length} respuesta${missing.length===1?"":"s"}.`);return}s.questions.forEach((_,n)=>{const key=scenarioIndex+"-"+n;answers[key]=selectedValues(key);checked[key]=true});render()}
+$("startBtn").addEventListener("click",()=>{scenarioOrder=shuffle(scenarios.map((_,i)=>i));$("intro").hidden=true;$("quizPanel").hidden=false;render();$("scenarioTitle").scrollIntoView({block:"start"})});$("checkBtn").addEventListener("click",checkScenario);$("prevBtn").addEventListener("click",()=>{if(scenarioIndex){scenarioIndex--;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}});$("nextBtn").addEventListener("click",()=>{if(scenarioIndex<4){scenarioIndex++;render();$("scenarioTitle").scrollIntoView({behavior:"smooth",block:"start"})}else showResults()});
+function getScore(){let total=0;const byDim={};dimensions.forEach(n=>byDim[n]={score:0,total:0});scenarioOrder.forEach((scenarioId,displayIndex)=>{const s=scenarios[scenarioId];s.questions.forEach((q,n)=>{const dn=dimensions[q.d];byDim[dn].total++;if(isCorrect(q,displayIndex+"-"+n)){total++;byDim[dn].score++}})});return{total,byDim}}
+function buildQuizResult(total,byDim,level){
+  const dim={};
+  Object.entries(byDim).forEach(([n,x])=>{dim[n]={correctas:x.score,erradas:x.total-x.score,total:x.total,porcentaje:x.total?Math.round(x.score/x.total*100):0}});
+  const resp={};
+  scenarioOrder.forEach((sid,di)=>{const s=scenarios[sid];s.questions.forEach((q,n)=>{const key=di+"-"+n;resp["E"+(sid+1)+"-P"+(n+1)]={dimension:dimensions[q.d],seleccionada:(answers[key]||[]).join(","),correcta:q.a.join(","),resultado:isCorrect(q,key)?"Correcta":"Errada"}})});
+  return{puntaje:total,nivel:level,dimensiones:dim,respuestas:resp};
+}
+function showResults(){const {total,byDim}=getScore();$("quizPanel").hidden=true;$("finish").style.display="block";$("scoreNumber").textContent=total+"/15";let level,desc,rec;if(total<=5){level="Nivel inicial";desc="Se observan dificultades importantes en el razonamiento crítico con información cuantitativa.";rec="Prioriza la lectura cuidadosa de enunciados con cifras, la identificación de qué se compara con qué (la base de un porcentaje, por ejemplo) y la verificación de cálculos sencillos."}else if(total<=8){level="En desarrollo";desc="Resuelves cálculos directos, pero necesitas consolidar el análisis y la valoración crítica de los datos.";rec="Practica distinguir asociación de causalidad, interpretar probabilidades condicionales y revisar si una muestra o una medida resumen representa realmente a la población."}else if(total<=11){level="Competente";desc="Presentas un desempeño satisfactorio en el razonamiento crítico matemático evaluado.";rec="Profundiza en los argumentos con probabilidades condicionales, el diseño de comprobaciones de hipótesis y la elección de la medida estadística adecuada a cada decisión."}else if(total<=13){level="Avanzado";desc="Demuestras capacidad consistente para interpretar, contrastar y cuestionar afirmaciones cuantitativas.";rec="Fortalece la transferencia de estas habilidades a estudios científicos, informes técnicos y noticias con datos, atendiendo a sesgos y supuestos implícitos."}else{level="Sobresaliente";desc="Evidencias un desempeño alto en las tareas de pensamiento crítico matemático de esta prueba.";rec="Continúa con situaciones de mayor complejidad: modelación, incertidumbre con varias variables y evaluación de evidencia interdisciplinaria."}$("levelName").textContent=level;window.__quizResult=buildQuizResult(total,byDim,level);$("levelDescription").textContent=desc;$("dimensionResults").innerHTML="";Object.entries(byDim).forEach(([name,x])=>{const wrap=document.createElement("div");wrap.className="dimension";wrap.innerHTML=`<div class="dimension-top"><span>${name}</span><span>${x.score}/${x.total}</span></div><div class="bar"><div style="width:${x.score/x.total*100}%"></div></div>`;$("dimensionResults").append(wrap)});$("recommendation").innerHTML="<strong>Orientación de aprendizaje</strong><br>"+rec+"<br><br><small>Este resultado es diagnóstico y corresponde únicamente a los 15 reactivos distribuidos en 5 escenarios. No constituye una medición exhaustiva ni un diagnóstico psicométrico.</small>"}
+$("reviewBtn").addEventListener("click",()=>{$("finish").style.display="none";$("quizPanel").hidden=false;scenarioIndex=0;render()});$("restartBtn").addEventListener("click",()=>{scenarioIndex=0;scenarioOrder=[];answers={};checked={};$("finish").style.display="none";$("intro").hidden=false});
+</script>
+<script data-implementa-quiz="v2">
+(function(){
+  const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/pascualbravo.edu.co/s/AKfycbzfaUcDrq73IIZaB0TET7bI778Cg3f5TKvgMFnKoIxCsUeceaB9FU1pEswrexSVJrJK/exec';
+  let sent = false;
+  const log = [];
+  function textOf(sel){const el=document.querySelector(sel);return el?(el.textContent||'').replace(/\s+/g,' ').trim():''}
+  function resultado(){
+    const r = window.__quizResult || {};
+    let puntaje = r.puntaje;
+    if(puntaje == null){const m = textOf('[id*="score" i],[class*="score" i],[id*="puntaje" i],[class*="puntaje" i]').match(/\d+([.,]\d+)?/); puntaje = m ? Number(m[0].replace(',','.')) : null;}
+    let nivel = r.nivel;
+    if(nivel == null){nivel = textOf('[id*="level" i],[class*="level" i],[id*="nivel" i],[class*="nivel" i]') || null;}
+    return {puntaje, nivel, dimensiones: r.dimensiones || {}, respuestas: r.respuestas || null};
+  }
+  function registrar(){
+    if(sent || !APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGA_AQUI')) return;
+    sent = true;
+    const res = resultado();
+    const form = document.querySelector('form');
+    let respuestas = res.respuestas;
+    if(!respuestas){
+      respuestas = form ? Object.fromEntries(new FormData(form)) : Object.fromEntries([...document.querySelectorAll('input,select,textarea')].filter(control=>control.name).map(control=>[control.name,control.value]));
+      if(log.length) respuestas.selecciones = log.slice();
+    }
+    const payload = { cuestionario:"Pensamiento crítico | Competencia matemática universitaria", version:"1.0", puntaje:res.puntaje, nivel:res.nivel, dimensiones:res.dimensiones, respuestas };
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',credentials:'include',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload)}).catch(function(){ sent=false; });
+  }
+  document.addEventListener('change',function(e){const t=e.target;if(t&&t.name&&(t.type==='radio'||t.type==='checkbox'))log.push({campo:t.name,valor:t.value,marcado:t.checked});},true);
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#restartBtn')){sent=false;log.length=0;window.__quizResult=null;}},true);
+  document.addEventListener('submit',registrar,true);
+  document.addEventListener('click',function(e){
+    const target = e.target.closest('button,[role="button"],input[type="submit"]');
+    if(!target) return;
+    const label = (target.textContent || target.value || '').toLowerCase();
+    if(/finalizar|ver resultados|enviar resultados|terminar|guardar resultados/.test(label)) setTimeout(registrar,0);
+  },true);
+})();
+</script></body>
+</html>
