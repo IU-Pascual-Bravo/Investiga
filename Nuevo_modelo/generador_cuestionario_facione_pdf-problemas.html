@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de cuestionarios de solución de problemas (Facione) desde un PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style id="css">
+:root{--ink:#17243a;--muted:#607086;--blue:#2457a6;--cyan:#16a6a1;--card:#fff;--line:#dce4ef;--good:#16794b;--bad:#b43b3b;--softgood:#e9f7ef;--softbad:#fff0ef}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#edf3fc,#f4fbfa);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.container{width:min(920px,94%);margin:32px auto 56px}
+header{background:linear-gradient(120deg,#173b78,#087f88);color:#fff;padding:30px clamp(20px,5vw,44px);border-radius:22px;box-shadow:0 14px 35px #173b7825}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.12;margin:0 0 10px}
+header p{max-width:720px;margin:8px 0 0;color:#e8f5ff}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pill{background:#ffffff20;border:1px solid #ffffff40;padding:6px 11px;border-radius:999px;font-size:.82rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);margin-top:20px;box-shadow:0 8px 24px #1c35500b}
+h2{font-size:1.25rem;margin:0 0 10px}
+.instructions,.hint{color:var(--muted);margin:0 0 8px}
+.progress-head{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-bottom:9px}
+.progress{height:9px;background:#e8edf5;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.tag{font-size:.76rem;font-weight:750;color:#24518b;background:#edf4ff;padding:5px 9px;border-radius:7px}
+.question{font-size:1.14rem;font-weight:700;margin:12px 0 18px}
+.options{display:grid;gap:10px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff}
+.option:hover{border-color:#8caedb;background:#f8fbff}
+.option:has(input:checked){border-color:var(--blue);background:#eef5ff}
+.option.answer-good{border-color:#78c79a;background:var(--softgood);color:#145d3b}
+.option.answer-bad{border-color:#e5a29c;background:var(--softbad);color:#8d2929}
+.option input{margin-top:5px;accent-color:var(--blue);flex:0 0 auto}
+.option span{flex:1}.option.disabled{cursor:default}
+.feedback{margin-top:17px;border-radius:12px;padding:14px 16px;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--softgood);border:1px solid #b9e3ca;color:#145d3b}
+.feedback.bad{background:var(--softbad);border:1px solid #f0c5c1;color:#8d2929}
+.feedback strong{display:block;margin-bottom:4px}
+.scenario-intro{color:var(--muted);margin:0 0 18px}
+.scenario-question{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.scenario-question:first-child{border-top:0;padding-top:0;margin-top:0}
+.stimulus{background:#f1f6fc;border-left:4px solid var(--cyan);border-radius:10px;padding:16px 18px;margin:16px 0 22px;white-space:pre-line}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 18px;font-weight:750;font-size:.95rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--blue);color:#fff}.secondary{background:#edf1f7;color:#31445e}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0}
+.score-number{font-size:2.6rem;font-weight:850;color:var(--blue);line-height:1}
+.level{font-weight:800;font-size:1.05rem}
+.dimension{margin:18px 0}
+.dimension-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:.92rem}
+.bar{height:10px;background:#e9eef5;border-radius:99px;overflow:hidden;margin-top:7px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.result-note{padding:15px;background:#f1f6fc;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin:22px 0}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.85}
+.scenario-question .tags{margin-top:0}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;margin:.7em 0!important}
+@media print{body{background:#fff}.container{width:100%;margin:0}header{box-shadow:none}.actions,footer{display:none!important}.panel{box-shadow:none;break-inside:avoid}}
+/* herramienta */
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+label.f{font-weight:700;font-size:.9rem;color:var(--muted);display:block;margin-bottom:4px}
+input[type=text],input[type=password],input[type=file],select,textarea{width:100%;padding:10px 12px;border:1px solid #b8c6da;border-radius:10px;font:inherit;background:#fff;color:#17243a}
+select option,select optgroup{background:#fff;color:#17243a}
+textarea{resize:vertical}
+.col{flex:1 1 220px}
+.msg{padding:10px 14px;border-radius:10px;background:#f1f6fc;margin-top:12px;min-height:20px}
+.msg.error,.msg.bad{background:var(--softbad);color:#8d2929}.msg.exito{background:var(--softgood);color:#145d3b}
+.ed .option{cursor:default}.ed .option b{margin-top:8px}
+.ed .scenario-question textarea,.ed input[type=text]{margin-bottom:8px}
+.edw{flex:1;min-width:0}
+.mjprev{margin:-2px 0 10px;padding:8px 12px;border:1px dashed #b8c6da;border-radius:10px;background:#f8fbff;white-space:pre-line;font-size:.95rem}
+@media(max-width:560px){.container{margin:14px auto 35px}header{border-radius:16px}.actions button{flex:1}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Cuestionario de pensamiento crítico: solución de problemas desde un PDF</h1>
+  <p>Carga un documento, elige un modelo de IA y obtén 5 escenarios de problemas con 15 preguntas organizadas según las habilidades centrales de Facione. Si el documento tiene fórmulas, se muestran con MathJax. Puedes revisar y editar todo antes de descargar el cuestionario listo para usar.</p>
+  <div class="meta"><span class="pill">PDF → escenarios de problemas</span><span class="pill">6 habilidades de Facione</span><span class="pill">Fórmulas con MathJax</span><span class="pill">HTML descargable</span></div>
+</header>
+
+<section class="panel">
+  <h2>1. Proveedor y modelo de IA</h2>
+  <div class="row">
+    <div class="col"><label class="f" for="prov">Proveedor</label>
+      <select id="prov">
+        <optgroup label="Gratuitos"><option value="free">Red Descartes</option><option value="google">Google AI Studio</option><option value="mistral">Mistral AI</option><option value="cohere">Cohere</option><option value="groq">Groq</option></optgroup>
+        <optgroup label="Pago por uso"><option value="pollinations">Pollinations AI</option><option value="openrouter">OpenRouter</option><option value="deepseek">DeepSeek</option></optgroup>
+      </select></div>
+    <div class="col"><label class="f" for="model">Modelo</label><select id="model"></select></div>
+  </div>
+  <div class="row">
+    <div class="col"><label class="f" id="keyLbl" for="key">API Key</label><input type="password" id="key" autocomplete="off"></div>
+    <button type="button" class="secondary" id="getKey">🔑 Obtener API Key</button>
+    <button type="button" class="secondary" id="valKey">✅ Validar</button>
+    <button type="button" class="secondary" id="clrKey">🧹 Limpiar</button>
+  </div>
+  <div class="msg" id="keyMsg" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+  <h2>2. Documento y opciones</h2>
+  <label class="f" for="pdf">Archivo PDF</label>
+  <input type="file" id="pdf" accept="application/pdf">
+  <div class="msg" id="pdfMsg">Aún no has cargado ningún PDF.</div>
+  <div class="row">
+    <div class="col"><label class="f" for="max">Texto máximo enviado a la IA</label>
+      <select id="max"><option value="12000">12 000 caracteres (rápido)</option><option value="20000" selected>20 000 caracteres</option><option value="30000">30 000 caracteres (documentos largos)</option></select></div>
+    <div class="col"><label class="f" for="titulo">Título del cuestionario</label><input type="text" id="titulo" placeholder="Se propone a partir del PDF"></div>
+  </div>
+  <div class="row">
+    <div class="col"><label class="f" for="url">URL de Apps Script para registrar resultados (opcional)</label><input type="text" id="url" placeholder="https://script.google.com/.../exec"></div>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="mix" checked> Mezclar el orden de las opciones</label>
+  </div>
+  <div class="actions"><span></span><button class="primary" id="gen">Generar cuestionario</button></div>
+  <div class="msg" id="genMsg" aria-live="polite"></div>
+</section>
+
+<section class="panel ed" id="out" hidden>
+  <h2>3. Revisa y edita</h2>
+  <p class="instructions">Corrige lo que haga falta. El botón de opción marca la respuesta correcta. Las fórmulas se escriben en LaTeX entre <code>\(</code> y <code>\)</code> (en línea) o entre <code>\[</code> y <code>\]</code> (destacadas); bajo cada campo que contenga fórmulas verás su vista previa. El signo $ se reserva para los pesos.</p>
+  <div class="msg" id="rep"></div>
+  <div id="prev"></div>
+  <div class="actions"><button class="secondary" id="test">Probar cuestionario</button><button class="primary" id="dl">Descargar HTML</button></div>
+</section>
+<footer>Generador de cuestionarios de solución de problemas desde PDF · Uso educativo · Revisa siempre las preguntas antes de aplicarlas</footer>
+</div>
+
+<script type="text/plain" id="quizBody">
+<div class="container">
+<header><div class="eyebrow">Evaluación universitaria · Instrumento diagnóstico</div><h1>__TITLE__</h1><p>Prueba interactiva de escenarios, basada en el documento «__DOC__», para valorar, con las habilidades centrales de Facione (interpretación, análisis, evaluación, inferencia, explicación y autorregulación), cómo se resuelven problemas en contextos universitarios.</p>
+<div class="meta"><span class="pill" id="m1"></span><span class="pill" id="m2"></span><span class="pill">Nivel universitario</span></div></header>
+<section class="panel" id="intro"><h2>Antes de comenzar</h2>
+<p class="instructions">Lee cada escenario con atención y responde todas sus preguntas antes de continuar. Cada pregunta tiene cuatro opciones y una sola respuesta correcta; elige la mejor. Al finalizar verás tu resultado global y el desempeño por dimensión.</p>
+<p class="instructions" style="margin-top:10px"><strong>Duración sugerida:</strong> 15–25 minutos. Cada pregunta vale un punto.</p>
+<div class="actions"><span></span><button class="primary" id="go">Comenzar cuestionario</button></div></section>
+<section class="panel" id="qz" hidden>
+<div class="progress-head"><span id="pt"></span><span id="pp"></span></div><div class="progress"><div id="pb"></div></div>
+<h2 id="st" style="margin-top:18px"></h2><p class="scenario-intro" id="si"></p><div class="stimulus" id="sx"></div><div id="qs"></div>
+<div class="actions"><button class="secondary" id="pv">Escenario anterior</button><button class="primary" id="ck">Comprobar escenario</button><button class="primary" id="nx" hidden>Siguiente escenario</button></div></section>
+<section class="panel" id="fin" hidden><h2>Resultados de la evaluación</h2>
+<p class="instructions">Tu resultado representa el desempeño en estas tareas de solución de problemas. Revisa tanto el puntaje global como las dimensiones.</p>
+<div class="score"><div class="score-number" id="sc"></div><div><div class="level" id="ln"></div><div class="instructions" id="ld"></div></div></div>
+<h2 style="margin-top:25px">Desempeño por dimensión</h2><div id="dr"></div><div class="result-note" id="rc"></div>
+<div class="actions"><button class="secondary" id="rv">Revisar respuestas</button><button class="secondary" onclick="window.print()">Imprimir resultados</button><button class="primary" id="rs">Repetir cuestionario</button></div></section>
+<footer>Cuestionario diagnóstico de solución de problemas · Modelo de Facione · Uso educativo</footer></div>
+</script>
+
+<script type="text/plain" id="quizRT">
+const $=id=>document.getElementById(id),N=S.length;let ord=[],ix=0,ans={},chk={},sent=0;
+const sel=k=>[...document.querySelectorAll('input[data-k="'+k+'"]:checked')].map(x=>x.value);
+const ok=(q,k)=>!!chk[k]&&(ans[k]||[]).join()===q.a.join();
+const LV=[['Nivel inicial','Se observan dificultades importantes para abordar los problemas planteados.','Practica delimitar el problema antes de proponer soluciones, distinguir síntomas de causas y revisar qué datos respaldan cada afirmación.'],['En desarrollo','Reconoces los elementos de un problema, pero necesitas consolidar el análisis y la evaluación.','Compara alternativas con criterios explícitos y revisa explicaciones posibles antes de atribuir un resultado a una intervención.'],['Competente','Presentas un desempeño satisfactorio al resolver los problemas evaluados.','Profundiza en la evaluación de resultados con variables que confunden, en la justificación de tus decisiones y en la revisión de tu propio proceso.'],['Avanzado','Demuestras capacidad consistente para analizar, decidir y justificar soluciones.','Transfiere estas habilidades a problemas abiertos con información incompleta y explica tus decisiones ante personas con intereses distintos.'],['Sobresaliente','Evidencias un desempeño alto en las tareas de solución de problemas de esta prueba.','Continúa con problemas de mayor complejidad, con restricciones en conflicto y datos ambiguos, y practica la autorregulación de forma sistemática.']];
+/* MathJax: tipografía de fórmulas (se omite si el cuestionario no tiene fórmulas) */
+function tex(n){const go=()=>{MathJax.startup.promise=MathJax.startup.promise.then(()=>{if(MathJax.typesetClear)MathJax.typesetClear([n]);return MathJax.typesetPromise([n])}).catch(()=>{})};
+ const ready=()=>window.MathJax&&MathJax.startup&&MathJax.startup.promise&&MathJax.typesetPromise;
+ if(ready())return go();if(!window.MathJax)return;let k=0;const t=setInterval(()=>{if(ready()){clearInterval(t);go()}else if(++k>60)clearInterval(t)},200)}
+function render(){const s=S[ord[ix]],p=Math.round((ix+1)/N*100);
+$('pt').textContent='Escenario '+(ix+1)+' de '+N;$('pp').textContent=p+' %';$('pb').style.width=p+'%';
+$('st').textContent=s.title.replace(/^Escenario \d+/,'Escenario '+(ix+1));$('si').textContent=s.intro;$('sx').textContent=s.stimulus;
+const c=$('qs');c.innerHTML='';
+s.questions.forEach((q,n)=>{const k=ix+'-'+n,w=document.createElement('article');w.className='scenario-question';
+w.innerHTML='<div class="tags"><span class="tag">Reactivo '+(n+1)+' de '+s.questions.length+'</span><span class="tag">'+DIM[q.d]+'</span></div><div class="question"></div><div class="options"></div><div class="feedback"></div>';
+w.querySelector('.question').textContent=q.q;
+q.o.forEach(([v,l])=>{const lab=document.createElement('label'),good=q.a.includes(v),pick=(ans[k]||[]).includes(v);
+lab.className='option'+(chk[k]?' disabled'+(good?' answer-good':(pick?' answer-bad':'')):'');
+const i=document.createElement('input');i.type='radio';i.name='a'+k;i.dataset.k=k;i.value=v;i.checked=pick;i.disabled=!!chk[k];
+const sp=document.createElement('span');sp.textContent=l;lab.append(i,sp);w.querySelector('.options').append(lab)});
+if(chk[k]){const f=w.querySelector('.feedback'),g=ok(q,k);f.className='feedback show '+(g?'good':'bad');
+f.innerHTML='<strong>'+(g?'Respuesta correcta':'Respuesta incorrecta')+'</strong>'+(g?'Tu respuesta coincide con el razonamiento esperado.':'La respuesta correcta es '+q.a.join(', ')+'.')}
+c.append(w)});
+const done=s.questions.every((_,n)=>chk[ix+'-'+n]);$('ck').hidden=done;$('nx').hidden=!done;
+$('nx').textContent=ix===N-1?'Ver resultados':'Siguiente escenario';$('pv').disabled=!ix;tex($('qz'))}
+const goTop=()=>$('st').scrollIntoView({behavior:'smooth',block:'start'});
+$('go').onclick=()=>{ord=S.map((_,i)=>i).sort(()=>Math.random()-.5);ix=0;$('intro').hidden=true;$('qz').hidden=false;render();goTop()};
+$('ck').onclick=()=>{const s=S[ord[ix]],m=s.questions.filter((_,n)=>!sel(ix+'-'+n).length);
+if(m.length)return alert('Responde todas las preguntas del escenario antes de continuar. Faltan '+m.length+'.');
+s.questions.forEach((_,n)=>{const k=ix+'-'+n;ans[k]=sel(k);chk[k]=1});render()};
+$('pv').onclick=()=>{if(ix){ix--;render();goTop()}};
+$('nx').onclick=()=>{if(ix<N-1){ix++;render();goTop()}else results()};
+function results(){let t=0,tot=0;const B={},R={};DIM.forEach(d=>B[d]={score:0,total:0});
+ord.forEach((id,di)=>S[id].questions.forEach((q,n)=>{const k=di+'-'+n,g=ok(q,k),d=DIM[q.d];B[d].total++;tot++;if(g){t++;B[d].score++}
+R['E'+(id+1)+'-P'+(n+1)]={dimension:d,seleccionada:(ans[k]||[]).join(),correcta:q.a.join(),resultado:g?'Correcta':'Errada'}}));
+const r=t/tot,L=LV[r<=.36?0:r<=.57?1:r<=.77?2:r<=.9?3:4];
+$('qz').hidden=true;$('fin').hidden=false;$('sc').textContent=t+'/'+tot;$('ln').textContent=L[0];$('ld').textContent=L[1];
+$('dr').innerHTML='';const dim={};
+Object.entries(B).forEach(([n,x])=>{if(!x.total)return;dim[n]={correctas:x.score,erradas:x.total-x.score,total:x.total,porcentaje:Math.round(x.score/x.total*100)};
+const w=document.createElement('div');w.className='dimension';w.innerHTML='<div class="dimension-top"><span>'+n+'</span><span>'+x.score+'/'+x.total+'</span></div><div class="bar"><div style="width:'+x.score/x.total*100+'%"></div></div>';$('dr').append(w)});
+$('rc').innerHTML='<strong>Orientación de aprendizaje</strong><br>'+L[2]+'<br><br><small>Este resultado es diagnóstico y corresponde únicamente a los '+tot+' reactivos distribuidos en '+N+' escenarios. No constituye una medición exhaustiva ni un diagnóstico psicométrico.</small>';
+if(CFG.url&&!sent){sent=1;fetch(CFG.url,{method:'POST',mode:'no-cors',credentials:'include',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({cuestionario:CFG.title,version:'1.0',puntaje:t,nivel:L[0],dimensiones:dim,respuestas:R})}).catch(()=>{sent=0})}}
+$('rv').onclick=()=>{$('fin').hidden=true;$('qz').hidden=false;ix=0;render()};
+$('rs').onclick=()=>{ans={};chk={};sent=0;$('fin').hidden=true;$('intro').hidden=false};
+$('m1').textContent=N+' escenarios';$('m2').textContent=S.reduce((a,s)=>a+s.questions.length,0)+' preguntas';
+</script>
+
+<script type="text/plain" id="mjCfg">
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]'],['$$','$$']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};
+</script>
+
+<script>
+const $=id=>document.getElementById(id);
+/* ---- MathJax en la herramienta (vista previa del editor) ---- */
+const MJ_URL='https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js';
+new Function($('mjCfg').textContent)();
+{const s=document.createElement('script');s.src=MJ_URL;s.async=true;document.head.append(s)}
+const MATH=/\\\(|\\\[|\$\$/;
+const anyMath=o=>typeof o==='string'?MATH.test(o):(o&&typeof o==='object')?Object.values(o).some(anyMath):false;
+function tex(n){const go=()=>{MathJax.startup.promise=MathJax.startup.promise.then(()=>{if(MathJax.typesetClear)MathJax.typesetClear([n]);return MathJax.typesetPromise([n])}).catch(()=>{})};
+ const ready=()=>window.MathJax&&MathJax.startup&&MathJax.startup.promise&&MathJax.typesetPromise;
+ if(ready())return go();let k=0;const t=setInterval(()=>{if(ready()){clearInterval(t);go()}else if(++k>60)clearInterval(t)},200)}
+const DIM=["Interpretación","Análisis","Evaluación","Inferencia","Explicación","Autorregulación"];
+const SYS=`Eres un diseñador de instrumentos de evaluación del pensamiento crítico aplicado a la solución de problemas en educación superior. Recibirás el texto de un documento y debes generar un cuestionario de escenarios de problemas, organizado según las habilidades centrales de pensamiento crítico de Facione, cuyo contenido dependa de ese documento. Respondes siempre en español.
+
+PARÁMETROS: 5 escenarios, 3 preguntas por escenario (15 en total), 4 opciones (A, B, C, D) con una sola correcta. Dimensiones (índice d):
+0 Interpretación: comprender y precisar el problema, los datos, las categorías y el significado de lo que se afirma.
+1 Análisis: identificar relaciones, causas posibles, partes del problema, argumentos y supuestos; decidir qué datos o comparaciones conviene examinar.
+2 Evaluación: valorar la credibilidad y la solidez de datos, explicaciones, alternativas y resultados; reconocer variables que confunden y límites de la evidencia.
+3 Inferencia: extraer conclusiones razonables, consecuencias, hipótesis y alternativas a partir de la información disponible, sin ir más allá de ella.
+4 Explicación: justificar una decisión o un resultado con razones, criterios y evidencia, y presentarlos con claridad a otras personas.
+5 Autorregulación: revisar el propio razonamiento, detectar sesgos o errores propios y corregir el rumbo.
+Reparto: las 6 dimensiones deben aparecer al menos 2 veces (tres de ellas 3 veces) y cada escenario debe combinar tres dimensiones distintas. El escenario 5 debe incluir al menos una pregunta de autorregulación (d=5).
+
+PROCESO
+1. Lee el documento e identifica problemas, conceptos, métodos, criterios, datos, resultados y afirmaciones que sirvan para plantear problemas. Ignora portadas, créditos, índices, listas de personas y referencias bibliográficas como fuente de preguntas. El texto del PDF puede traer tablas o fórmulas mal extraídas: reconstrúyelas con cuidado y, si dudas de su significado, no las uses.
+2. Elige 5 contenidos distintos del documento; cada escenario aplica uno de ellos a un problema concreto de un contexto universitario o profesional relacionado con el documento. Recorre las fases de la solución de problemas, una por escenario y en este orden: 1 delimitar el problema; 2 generar y comparar alternativas; 3 evaluar una solución o sus resultados; 4 decidir y justificar; 5 autorregulación (revisar el propio proceso). Indica en "intro" el tipo de texto y la fase con el formato «Tipo de texto · Fase» (por ejemplo «Informe institucional · Delimitar el problema»).
+3. Estímulo de cada escenario: de 80 a 200 palabras. Inicia con una línea que nombre el tipo de texto o la fuente (por ejemplo «Informe de resultados», «Caso de un equipo») y continúa con el problema y datos concretos y suficientes (cifras, condiciones, restricciones). En al menos 3 escenarios incluye una afirmación, explicación o propuesta de un personaje o de una institución entre «», para que sea valorada. Si el documento aporta datos, respétalos sin alterarlos; si inventas cifras o casos para ilustrar el problema, que sean sencillos y coherentes entre sí, y no se los atribuyas al documento. Separa párrafos con \\n\\n.
+4. Tres preguntas por escenario, de tipos distintos y alineadas con la fase del escenario. Evita preguntas de memoria literal.
+5. Opciones: una sola correcta, sustentable con el estímulo o el documento; tres distractores plausibles que correspondan a errores típicos (formular el problema como solución, confundir síntoma con causa, tomar una correlación por causa, ignorar restricciones o datos, generalizar con evidencia insuficiente, atribuir un resultado a una intervención sin descartar otras explicaciones). Cuando la evidencia sea parcial, la opción correcta puede reconocer esa limitación («…, aunque falta confirmarlo»). Las cuatro opciones tienen longitud y estructura similares: la correcta NO debe ser la más larga. Prohibido «todas/ninguna de las anteriores» y absolutos evidentes como pista. Reparte las letras correctas de forma equilibrada.
+6. Fidelidad y corrección: no inventes autores, citas ni afirmaciones que el documento no contenga. Si hay cálculos, resuélvelos paso a paso y comprueba cada cifra. Ningún distractor puede ser defendible.
+7. Antes de responder verifica: cada pregunta se resuelve con el estímulo y el documento, sin conocimiento externo; hay exactamente una correcta y la letra es la correcta; las dimensiones y las letras están equilibradas; el JSON es válido. Si el documento no permite 5 escenarios distintos, genera los posibles y explícalo en "aviso".
+
+FÓRMULAS: usa LaTeX solo si el documento contiene notación matemática que sea necesaria. En línea entre \\( y \\), destacadas entre \\[ y \\]. No uses $ para fórmulas: el signo $ es solo para pesos. Dentro de una fórmula escribe los decimales con {,} (por ejemplo \\\\(3{,}5\\\\)). Los porcentajes, el dinero y las cifras simples se escriben como texto normal, sin LaTeX. En el JSON duplica cada barra invertida de LaTeX: \\\\(\\\\frac{3}{4}\\\\), \\\\(x^{2}\\\\).
+
+SALIDA: responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni bloques markdown:
+{"documento":"Título","aviso":"","scenarios":[{"title":"Escenario 1: Título breve","intro":"Informe institucional · Delimitar el problema","stimulus":"Línea de origen\\n\\nProblema con datos...\\n\\n«Afirmación a valorar»","questions":[{"d":0,"q":"Enunciado","o":[["A","..."],["B","..."],["C","..."],["D","..."]],"a":["C"]}]}]}
+"d" es un entero de 0 a 5; "a" es un arreglo con una sola letra; usa comillas «» dentro de los textos y escapa los saltos de línea como \\n.`;
+
+
+/* ---- Proveedores y modelos (mismo esquema que proveedores.html) ---- */
+const P={
+ pollinations:{name:'Pollinations AI',url:'https://gen.pollinations.ai/v1/chat/completions',validateUrl:'https://gen.pollinations.ai/v1/models',model:'gemini-fast',ph:'plln_sk_...',keyUrl:'https://enter.pollinations.ai/authorize'},
+ free:{name:'Red Descartes',url:'https://node.proyectodescartes.org/api/ia/text',model:'gemini-fast',free:true,ph:'',keyUrl:''},
+ openrouter:{name:'OpenRouter',url:'https://openrouter.ai/api/v1/chat/completions',validateUrl:'https://openrouter.ai/api/v1/models',model:'google/gemini-2.5-flash',ph:'sk-or-...',keyUrl:'https://openrouter.ai/keys'},
+ google:{name:'Google AI Studio',url:'https://generativelanguage.googleapis.com/v1beta/models/',validateUrl:'https://generativelanguage.googleapis.com/v1beta/models',model:'gemini-2.5-flash',ph:'AIzaSy...',keyUrl:'https://aistudio.google.com/app/apikey'},
+ mistral:{name:'Mistral AI',url:'https://api.mistral.ai/v1/chat/completions',validateUrl:'https://api.mistral.ai/v1/models',model:'open-mixtral-8x7b',ph:'Clave Mistral API...',keyUrl:'https://console.mistral.ai/api-keys/'},
+ cohere:{name:'Cohere',url:'https://api.cohere.com/v2/chat',validateUrl:'https://api.cohere.com/v1/models',model:'command-a-03-2025',ph:'Clave Cohere API...',keyUrl:'https://dashboard.cohere.com/api-keys'},
+ groq:{name:'Groq',url:'https://api.groq.com/openai/v1/chat/completions',validateUrl:'https://api.groq.com/openai/v1/models',model:'llama-3.3-70b-versatile',ph:'gsk_...',keyUrl:'https://console.groq.com/keys'},
+ deepseek:{name:'DeepSeek',url:'https://api.deepseek.com/chat/completions',validateUrl:'https://api.deepseek.com/models',model:'deepseek-chat',ph:'sk-...',keyUrl:'https://platform.deepseek.com/api_keys'}};
+const M={
+ pollinations:['google/gemini-2.5-flash-lite','mistral','deepseek/deepseek-v4.1-flash-1017','openai/gpt-5.4-mini','minimax/minimax-m3','openai/gpt-5.6-terra','meta/muse-spark-open','google/gemini-3.5-flash-lite','nvidia/nemotron-3.5-super-vl','tencent/hy4-preview'],
+ free:['gemini-fast','openai','openai-fast','gemini-search','mistral','nova-fast','perplexity-fast','deepseek','openai/gpt-5.6-luna','openai/gpt-6-luna','anthropic/claude-haiku-5.5','xiaomi/mimo-v2.6-flash','minimax-m2.7'],
+ openrouter:['google/gemini-2.5-flash','deepseek/deepseek-chat-v3-0324','openai/gpt-5-mini','moonshotai/kimi-k2.6','meta-llama/llama-3.3-70b-instruct','openrouter/free'],
+ google:['gemini-2.5-flash','gemini-2.0-flash','gemini-2.5-pro'],
+ mistral:['open-mixtral-8x7b','open-mistral-7b'],
+ cohere:['command-a-03-2025','command-r7b-12-2024'],
+ groq:['llama-3.3-70b-versatile','openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.1-8b-instant'],
+ deepseek:['deepseek-chat','deepseek-reasoner']};
+const LBL={'gemini-fast':'Gemini 2.5 Flash','openai':'GPT-5 Mini','openai-fast':'OpenAI Fast','gemini-search':'Gemini con búsqueda','mistral':'Mistral','nova-fast':'Nova Fast','perplexity-fast':'Perplexity Fast','deepseek':'DeepSeek V3.2','gemini-2.5-flash':'Gemini 2.5 Flash','gemini-2.0-flash':'Gemini 2.0 Flash','gemini-2.5-pro':'Gemini 2.5 Pro','google/gemini-2.5-flash':'Gemini 2.5 Flash','deepseek/deepseek-chat-v3-0324':'DeepSeek V3 (0324)','openai/gpt-5-mini':'GPT-5 Mini','moonshotai/kimi-k2.6':'Kimi K2.6','meta-llama/llama-3.3-70b-instruct':'Llama 3.3 70B','openrouter/free':'OpenRouter (gratuito)','open-mixtral-8x7b':'Mixtral 8x7B','open-mistral-7b':'Mistral 7B','command-a-03-2025':'Command A','command-r7b-12-2024':'Command R7B','llama-3.3-70b-versatile':'Llama 3.3 70B','llama-3.1-8b-instant':'Llama 3.1 8B (rápido)','openai/gpt-oss-120b':'GPT-OSS 120B','openai/gpt-oss-20b':'GPT-OSS 20B','deepseek-chat':'DeepSeek Chat','deepseek-reasoner':'DeepSeek Reasoner (lento)'};
+const kn=p=>p+'_api_key';
+function setProv(){const p=$('prov').value,c=P[p],cur=$('model').value;
+ $('model').replaceChildren(...M[p].map(m=>new Option(LBL[m]||m,m)));$('model').value=M[p].includes(cur)?cur:c.model;
+ $('keyLbl').textContent=c.free?'No se requiere API Key':'API Key ('+c.name+')';$('key').placeholder=c.ph;$('key').disabled=!!c.free;
+ $('key').value=c.free?'':(localStorage.getItem(kn(p))||'');$('getKey').style.display=c.free?'none':'';$('valKey').style.display=c.free?'none':'';$('clrKey').style.display=c.free?'none':'';
+ localStorage.setItem('preferred_cuestionario_pdf_provider',p)}
+const sv=localStorage.getItem('preferred_cuestionario_pdf_provider');$('prov').value=P[sv]?sv:'free';$('prov').onchange=setProv;setProv();
+const saveKey=()=>{const p=$('prov').value,v=$('key').value.trim();if(!P[p].free&&v)localStorage.setItem(kn(p),v)};
+$('key').onchange=saveKey;$('key').onblur=saveKey;
+const hk=new URLSearchParams(location.hash.slice(1)).get('api_key');
+if(hk){$('prov').value='pollinations';setProv();$('key').value=hk;localStorage.setItem('pollinations_api_key',hk);history.replaceState(null,null,location.pathname+location.search);km('✅ API Key obtenida con éxito','exito')}
+function km(t,c){$('keyMsg').textContent=t;$('keyMsg').className='msg '+(c||'')}
+const key=()=>$('key').value.trim()||localStorage.getItem(kn($('prov').value))||'';
+$('getKey').onclick=()=>{const c=P[$('prov').value];if(!c.keyUrl)return;
+ if($('prov').value==='pollinations')location.href=c.keyUrl+'?redirect_url='+encodeURIComponent(location.href.split('#')[0]);else window.open(c.keyUrl,'_blank','noopener,noreferrer')};
+$('valKey').onclick=async()=>{const p=$('prov').value,c=P[p],k=$('key').value.trim();if(!k)return km('Introduce una API Key antes de validarla.','error');
+ $('valKey').disabled=true;try{const r=await fetch(c.validateUrl,{headers:p==='google'?{'x-goog-api-key':k}:{Authorization:'Bearer '+k}});
+ if(!r.ok)throw new Error(r.status+': '+(await r.text()).slice(0,200));localStorage.setItem(kn(p),k);km('✅ API Key válida para '+c.name+'.','exito')}
+ catch(e){km('❌ No se pudo validar la API Key de '+c.name+'. '+e.message,'error')}$('valKey').disabled=false};
+$('clrKey').onclick=()=>{localStorage.removeItem(kn($('prov').value));$('key').value='';km('🧹 API Key eliminada del navegador.')};
+
+async function ask(sys,usr,signal){const p=$('prov').value,c=P[p],m=$('model').value,k=key();
+ if(!c.free&&!k)throw new Error('Falta la API Key.');
+ let url=c.url,h={'Content-Type':'application/json'},b;
+ if(p==='free')b={prompt:sys+'\n\n'+usr,model:m};
+ else if(p==='google'){url+=m+':generateContent';h['x-goog-api-key']=k;b={systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:usr}]}]}}
+ else{h.Authorization='Bearer '+k;if(p==='openrouter'){h['HTTP-Referer']=location.origin;h['X-Title']='Cuestionario desde PDF'}
+  b={model:m,messages:[{role:'system',content:sys},{role:'user',content:usr}]}}
+ const r=await fetch(url,{method:'POST',headers:h,body:JSON.stringify(b),signal}),t=await r.text();
+ if(!r.ok)throw new Error('Error '+r.status+': '+t.slice(0,200));
+ let d;try{d=JSON.parse(t)}catch{return t}
+ if(typeof d==='string')return d;
+ if(p==='google')return d.candidates?.[0]?.content?.parts?.map(x=>x.text||'').join('')||'';
+ if(p==='cohere')return d.message?.content?.map(x=>x.text||'').join('')||'';
+ if(p==='free')return d.text||d.response||d.choices?.[0]?.message?.content||'';
+ return d.choices?.[0]?.message?.content||''}
+
+/* ---- PDF ---- */
+let TXT='',DOC='';
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+$('pdf').onchange=async e=>{const f=e.target.files[0];if(!f)return;TXT='';$('pdfMsg').className='msg';$('pdfMsg').textContent='⏳ Leyendo '+f.name+'...';
+ try{const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let t='';
+  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),c=await pg.getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n\n'}
+  TXT=t.replace(/[ \t]+/g,' ').trim();DOC=f.name.replace(/\.pdf$/i,'').replace(/[_-]+/g,' ');
+  if(TXT.length<500){TXT='';throw new Error('El PDF casi no contiene texto (¿escaneado?). Usa una versión con texto seleccionable.')}
+  $('pdfMsg').className='msg exito';$('pdfMsg').textContent='✅ '+pdf.numPages+' páginas · '+TXT.length.toLocaleString('es')+' caracteres extraídos.';
+  if(!$('titulo').value)$('titulo').value='Solución de problemas: '+DOC}
+ catch(err){$('pdfMsg').className='msg error';$('pdfMsg').textContent='❌ '+err.message}};
+function cut(t,max){if(t.length<=max)return t;const n=5,s=Math.floor(t.length/n),k=Math.floor(max/n);return Array.from({length:n},(_,i)=>t.slice(i*s,i*s+k)).join('\n[…]\n')}
+
+/* ---- Normalización, validación y calidad ---- */
+/* Reparación de LaTeX: los modelos suelen olvidar duplicar las barras del JSON (\frac, \times, \( ...) */
+function fixJSON(t){return t.replace(/\\(\\|u[0-9a-fA-F]{4}|["\/]|[bfnrt]|[\s\S])/g,(m,c,off)=>{
+ if(c==='\\'||c==='"'||c==='/'||/^u[0-9a-fA-F]{4}$/.test(c))return m;
+ const rest=t.slice(off+2);
+ if('bfrt'.includes(c))return /^[A-Za-z]/.test(rest)?'\\\\'+c:m;
+ if(c==='n')return /^(eq|e|u|ot|otin|abla|geq|leq|mid|ll|gg)(?![A-Za-zÁÉÍÓÚáéíóúñÑ])/.test(rest)?'\\\\n':m;
+ return '\\\\'+c})}
+const fx=s=>typeof s!=='string'?s:s.replace(/\\\\(?=[A-Za-z]{2,})/g,'\\').replace(/\$([^$\n]*\\[A-Za-z][^$\n]*)\$/g,'\\($1\\)');
+function norm(o){(o.scenarios||[]).forEach(s=>{['title','intro','stimulus'].forEach(k=>{if(s[k]!=null)s[k]=fx(s[k])});(s.questions||[]).forEach(q=>{
+ q.q=fx(q.q);
+ q.o=(q.o||[]).map((x,i)=>['ABCD'[i],fx(Array.isArray(x)?String(x[1]):String(x).replace(/^[A-D][).:]\s*/,''))]);
+ q.a=[String(Array.isArray(q.a)?q.a[0]:q.a).trim().charAt(0).toUpperCase()];q.d=+q.d})});return o}
+function valid(o){return o&&Array.isArray(o.scenarios)&&o.scenarios.length>0&&o.scenarios.every(s=>s.stimulus&&Array.isArray(s.questions)&&s.questions.length>0&&s.questions.every(q=>q.q&&q.o.length===4&&q.o.some(x=>x[0]===q.a[0])&&q.d>=0&&q.d<=5))}
+function mezclar(o){o.scenarios.forEach(s=>s.questions.forEach(q=>{const good=q.o.find(x=>x[0]===q.a[0])[1],t=q.o.map(x=>x[1]);
+ for(let i=3;i>0;i--){const j=Math.floor(Math.random()*(i+1));[t[i],t[j]]=[t[j],t[i]]}
+ q.o=t.map((x,i)=>['ABCD'[i],x]);q.a=['ABCD'[t.indexOf(good)]]}))}
+function report(){const L={},d=[0,0,0,0,0,0];let lo=0,n=0;
+ D.scenarios.forEach(s=>s.questions.forEach(q=>{n++;d[q.d]++;const c=q.a[0];L[c]=(L[c]||0)+1;const len=q.o.find(x=>x[0]===c)[1].length;if(q.o.every(x=>x[0]===c||x[1].length<len))lo++}));
+ $('rep').textContent=n+' preguntas · Correctas por letra: '+[...'ABCD'].map(l=>l+' '+(L[l]||0)).join(', ')+' · Por dimensión (0-5): '+d.join('/')+' · Correcta más larga: '+lo+' de '+n+(lo>n*.4?' — conviene igualar la longitud de las opciones':'');
+ $('rep').className='msg'+(lo>n*.4?' bad':'')}
+
+/* ---- Editor ---- */
+let D=null;
+const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
+function ed(o,k,rows){const w=el('div','edw'),t=rows?el('textarea'):el('input'),pv=el('div','mjprev');if(rows)t.rows=rows;else t.type='text';t.value=o[k];
+ let tm;const upd=()=>{if(MATH.test(t.value)){pv.hidden=false;pv.textContent=t.value;tex(pv)}else pv.hidden=true};
+ t.oninput=()=>{o[k]=t.value;clearTimeout(tm);tm=setTimeout(upd,300)};
+ w.append(t,pv);upd();return w}
+function draw(){const c=$('prev');c.innerHTML='';
+ D.scenarios.forEach((s,i)=>{const w=el('div','panel');w.append(ed(s,'title'),ed(s,'intro'),ed(s,'stimulus',9));
+  s.questions.forEach((q,n)=>{const b=el('div','scenario-question'),tg=el('div','tags');
+   const t1=el('span','tag');t1.textContent='Reactivo '+(n+1);const t2=el('span','tag');t2.textContent=DIM[q.d];tg.append(t1,t2);
+   b.append(tg,ed(q,'q',2));
+   q.o.forEach(op=>{const r=el('label','option'),rd=el('input');rd.type='radio';rd.name='r'+i+'-'+n;rd.checked=q.a[0]===op[0];rd.onchange=()=>{q.a=[op[0]];report()};
+    const l=el('b');l.textContent=op[0];r.append(rd,l,ed(op,1,2));b.append(r)});
+   w.append(b)});c.append(w)})}
+
+/* ---- Generar ---- */
+const lock=v=>['prov','model','key','pdf','max','titulo','url','gen'].forEach(i=>$(i).disabled=v||(i==='key'&&P[$('prov').value].free));
+function gm(t,c){$('genMsg').textContent=t;$('genMsg').className='msg '+(c||'')}
+$('gen').onclick=async()=>{
+ if(!TXT)return gm('Carga primero un PDF con texto.','error');
+ if(!P[$('prov').value].free&&!key())return gm('🔑 Ingresa tu API Key o usa «Obtener API Key».','error');
+ lock(true);const usr='Documento: '+DOC+'\n\nTEXTO DEL DOCUMENTO:\n'+cut(TXT,+$('max').value);let o=null,err='';
+ for(let a=1;a<=2&&!o;a++){gm('⏳ Generando con '+P[$('prov').value].name+' · '+(LBL[$('model').value]||$('model').value)+' (intento '+a+' de 2). Puede tardar un minuto...');
+  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),180000);
+  try{let t=(await ask(SYS,usr,ac.signal)).replace(/```json|```/g,'');const i=t.indexOf('{'),j=t.lastIndexOf('}');
+   o=norm(JSON.parse(fixJSON(t.slice(i,j+1))));if(!valid(o)){o=null;err='La respuesta no tiene la estructura esperada.'}}
+  catch(e){o=null;err=e.name==='AbortError'?'Se agotó el tiempo de espera.':e.message}finally{clearTimeout(to)}}
+ lock(false);
+ if(!o)return gm('😟 No se pudo generar el cuestionario. '+err+' Prueba con otro modelo o un texto más corto.','error');
+ if($('mix').checked)mezclar(o);D=o;draw();report();$('out').hidden=false;
+ gm('✅ Cuestionario generado: '+o.scenarios.length+' escenarios.'+(o.aviso?' Aviso del modelo: '+o.aviso:''),'exito');
+ $('out').scrollIntoView({behavior:'smooth'})};
+
+/* ---- Exportar ---- */
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const js=o=>JSON.stringify(o).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,' ');
+function build(){const title=$('titulo').value.trim()||'Solución de problemas: '+DOC,doc=D.documento||DOC;
+ const body=$('quizBody').textContent.replace(/__TITLE__/g,esc(title)).replace(/__DOC__/g,esc(doc));
+ return '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>'+esc(title)+'</title>\n<style>'+$('css').textContent+'</style>'+(anyMath(D.scenarios)?'\n<script>'+$('mjCfg').textContent+'<\/script>\n<script async src="'+MJ_URL+'"><\/script>':'')+'\n</head>\n<body>'+body+
+ '\n<script>\nconst DIM='+js(DIM)+';\nconst CFG='+js({title,url:$('url').value.trim()})+';\nconst S='+js(D.scenarios)+';\n'+$('quizRT').textContent+'<\/script>\n</body>\n</html>'}
+$('test').onclick=()=>window.open(URL.createObjectURL(new Blob([build()],{type:'text/html;charset=utf-8'})),'_blank');
+$('dl').onclick=()=>{const n=($('titulo').value||DOC||'cuestionario').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').toLowerCase();
+ const a=el('a');a.href=URL.createObjectURL(new Blob([build()],{type:'text/html;charset=utf-8'}));a.download='cuestionario_'+n+'.html';document.body.append(a);a.click();a.remove()};
+</script>
+</body>
+</html>
