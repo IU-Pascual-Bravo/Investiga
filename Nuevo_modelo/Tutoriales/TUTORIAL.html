@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutorial · Implementa Quiz</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1b2a2f;--muted:#5a6b70;--accent:#0f5c63;--accent-soft:#dcebec;--line:#d5dcdc;--code:#eef1ef}
+@media (prefers-color-scheme:dark){:root{--bg:#11191b;--surface:#192326;--ink:#e6eeee;--muted:#9db0b3;--accent:#6cc3ca;--accent-soft:#1f3a3d;--line:#2c3b3e;--code:#202d30}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 Georgia,"Times New Roman",serif}
+main{max-width:48rem;margin:0 auto;padding:3rem 1.25rem 4rem}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 .8rem;letter-spacing:-.01em}
+h2{font-size:1.25rem;margin:2.6rem 0 .8rem;color:var(--accent)}
+p.lead{color:var(--muted);margin:0 0 1rem}
+p.note{font-size:.95rem;color:var(--muted);margin:0 0 .9rem}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.88em;background:var(--code);padding:.1em .38em;border-radius:4px}
+a{color:var(--accent)} a:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+ol{list-style:none;margin:0;padding:0}
+ol li{position:relative;padding:.7rem 1rem .7rem 4.75rem;background:var(--surface);border:1px solid var(--line);border-top-width:0}
+ol li:first-child{border-top-width:1px;border-radius:8px 8px 0 0}
+ol li:last-child{border-radius:0 0 8px 8px}
+ol li:only-child{border-radius:8px}
+ol li::before{content:attr(data-n);position:absolute;left:1rem;top:.75rem;width:2.5rem;text-align:center;font:600 .85rem/1.7 ui-monospace,Consolas,monospace;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:0}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:34rem;font-size:.95rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{color:var(--accent);background:var(--accent-soft)}
+td:first-child{font-weight:600}
+ul{padding-left:1.3rem} ul li{margin:.35rem 0}
+ul.check{list-style:none;padding:0} ul.check label{display:flex;gap:.6rem;align-items:flex-start}
+ul.check input{margin-top:.45rem;accent-color:var(--accent)}
+dt{font-weight:600;margin-top:1rem} dd{margin:.15rem 0 0;color:var(--muted)}
+footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+@media (max-width:480px){body{font-size:16px} ol li{padding-left:4.5rem}}
+</style>
+</head>
+<body>
+<main>
+<h1>Implementa Quiz: registrar los resultados de un cuestionario HTML5 en Google Drive</h1>
+<p class="lead">Con el Asistente v2 de Implementa Quiz conviertes un cuestionario HTML5 en una versión que envía sus resultados a una hoja de cálculo dentro de una carpeta de Drive. El cuestionario se procesa en tu navegador; el registro lo escribe un script de Google Apps Script que se ejecuta con tu cuenta.</p>
+<h2>Dos modelos</h2>
+<div class="scroll"><table>
+<tr><th scope="col"></th><th scope="col">Modelo institucional</th><th scope="col">Modelo personal</th></tr>
+<tr><td>Archivo del asistente</td><td><code>index.html</code></td><td><code>index-otrascuentas.html</code></td></tr>
+<tr><td>Quién puede responder</td><td>Solo cuentas del dominio institucional</td><td>Cuentas institucionales y cualquier otra cuenta de Google</td></tr>
+<tr><td>Acceso de la aplicación web</td><td>Solo dentro del dominio</td><td>Cualquier persona</td></tr>
+<tr><td>Qué se registra como identificación</td><td>El correo institucional</td><td>El correo institucional, o el nombre completo si usa otra cuenta</td></tr>
+<tr><td>Al abrir el cuestionario adaptado</td><td>Nada adicional</td><td>Pregunta con qué cuenta ingresó y, si es otra, pide nombre y apellido</td></tr>
+</table></div>
+<h2>Antes de empezar</h2><ul><li>Una cuenta de Google propietaria de la carpeta (será la cuenta que ejecute el script).</li><li>El cuestionario en un archivo HTML5 (tamaño recomendado: hasta 5 MB).</li><li>El dominio de tu institución, por ejemplo <code>@pascualbravo.edu.co</code>.</li></ul>
+<h2>Fase 1. Crear la carpeta en Drive</h2>
+<ol>
+  <li data-n="1">Crea una carpeta nueva en Google Drive. Allí se guardará la hoja <em>Registro de cuestionarios</em>.</li>
+  <li data-n="2">Compártela con la institución y asígnale el rol <strong>Editor</strong>.</li>
+  <li data-n="3">Copia el enlace de la carpeta (tiene la forma <code>https://drive.google.com/drive/folders/...</code>).</li>
+</ol>
+<h2>Fase 2. Preparar el cuestionario en el asistente</h2>
+<p class="note">Abre <code>index.html</code> (modelo institucional) o <code>index-otrascuentas.html</code> (modelo personal). La herramienta no guarda tu avance, así que mantén esta pestaña abierta hasta la Fase 4.</p>
+<ol>
+  <li data-n="4">En <strong>Paso 01 · Configuración</strong>, arrastra o selecciona el cuestionario en <em>Archivo HTML5</em>.</li>
+  <li data-n="5">Pega el enlace de la carpeta en <em>Nueva carpeta de Google Drive</em>. El asistente extrae el ID automáticamente.</li>
+  <li data-n="6">Escribe el dominio en <em>Dominio institucional</em> (<code>@pascualbravo.edu.co</code> u otro).</li>
+  <li data-n="7">Opcional: revisa <em>Nombre del cuestionario</em> (se detecta desde el HTML) y elige la <em>Versión</em> (A, B, Pretest, Postest o 1.0).</li>
+  <li data-n="8">Clic en <em>Analizar cuestionario</em>. El botón solo se activa cuando el archivo, el enlace y el dominio están completos.</li>
+  <li data-n="9">En <strong>Paso 02 · Diagnóstico</strong>, revisa los conteos: preguntas, campos de respuesta, señales de resultado y scripts. Deja el mapeo en sus valores predeterminados (<em>Detectar automáticamente</em>, <em>Detectar resultado visible</em>, <em>Al finalizar o enviar</em>) y cámbialo solo si el registro no captura bien el nombre, el resultado o el momento del envío.</li>
+  <li data-n="10">Clic en <em>Generar versión adaptada</em>.</li>
+</ol>
+<h2>Fase 3. Crear y activar el script en Apps Script</h2>
+<p class="note">Haz esta fase con la cuenta propietaria de la carpeta: el script se ejecuta como esa cuenta.</p>
+<ol>
+  <li data-n="11">En <strong>Paso 03 · Entregables</strong>, clic en <em>Descargar Apps Script</em>. Se descarga el archivo <code>Codigo.gs</code>.</li>
+  <li data-n="12">Entra a <a href="https://script.google.com/home/?hl=es-419" target="_blank" rel="noopener">Google Apps Script</a>, clic en <em>Nuevo proyecto</em> y ponle nombre.</li>
+  <li data-n="13">Abre <code>Codigo.gs</code> con el bloc de notas, selecciona todo el contenido y cópialo.</li>
+  <li data-n="14">En el editor, borra <code>function myFunction()</code> y pega el código copiado. Guarda el proyecto.</li>
+  <li data-n="15">Selecciona la función <code>configurarRegistro</code> y clic en <em>Ejecutar</em>. Autoriza los permisos que pida (Drive y Hojas de cálculo). Al terminar, la hoja <em>Registro de cuestionarios</em> debe aparecer en tu carpeta.</li>
+  <li data-n="16">Clic en <em>Implementar</em> &gt; <em>Nueva implementación</em> y elige el tipo <em>Aplicación web</em>.</li>
+  <li data-n="17">Configura <strong>Ejecutar como: Yo</strong> (la cuenta dueña de la carpeta) y <strong>Quién tiene acceso: Solo dentro del dominio</strong> (cuenta institucional).</li>
+  <li data-n="18">Clic en <em>Implementar</em> y copia la URL de la aplicación web. Termina en <code>/exec</code>; guárdala.</li>
+</ol>
+<h2>Fase 4. Conectar, descargar y probar</h2>
+<ol>
+  <li data-n="19">Vuelve al asistente (Paso 03) y pega la URL en <em>URL del despliegue de Apps Script</em>. Queda incorporada en el HTML que descargues.</li>
+  <li data-n="20">Clic en <em>Descargar HTML adaptado</em>. El archivo se llama <code>cuestionario_adaptado_...html</code>.</li>
+  <li data-n="21">Pruébalo con una cuenta institucional distinta de la propietaria: responde el cuestionario y revisa que la hoja reciba una fila con fecha, correo, cuestionario, versión, puntaje, nivel, dimensiones y respuestas.</li>
+  <li data-n="22">Comparte el cuestionario adaptado. ¡Listo!</li>
+</ol>
+<h2>Modelo personal (<code>index-otrascuentas.html</code>)</h2>
+<p>El procedimiento es el mismo, con estas diferencias:</p><ul><li><strong>Fase 2:</strong> Usa <code>index-otrascuentas.html</code> como asistente.</li><li><strong>Paso 17:</strong> Configura <strong>Quién tiene acceso: Cualquier persona</strong>. Es obligatorio: con <em>Solo dentro del dominio</em>, las cuentas externas no llegan al script y sus resultados no se guardan.</li><li><strong>Paso 18:</strong> Además de copiar la URL, puedes abrirla en el navegador: en este modelo el script crea la hoja de registro si aún no existe.</li><li><strong>Paso 20:</strong> El HTML adaptado pide, al abrirlo, <em>¿Con qué cuenta de Google ingresaste?</em>. Quien elige <em>Cuenta institucional</em> queda registrado con su correo; quien elige <em>Otra cuenta de Google</em> escribe nombre y apellido.</li><li><strong>Paso 21:</strong> Prueba con una cuenta institucional y con otra cuenta de Google. En este caso el nombre completo aparece en la columna <em>Correo institucional</em>.</li></ul>
+<p class="note">Como el acceso es abierto, el nombre es autodeclarado: el script no puede verificarlo.</p>
+<h2>Verificación final</h2><ul class="check"><li><label><input type="checkbox"> <span>Ejecuté <code>configurarRegistro()</code> y la hoja apareció en la carpeta nueva.</span></label></li><li><label><input type="checkbox"> <span>Pegué la URL <code>/exec</code> en el asistente y descargué el HTML adaptado después de hacerlo.</span></label></li><li><label><input type="checkbox"> <span>Probé con una cuenta distinta de la propietaria (en el modelo personal, también con una externa).</span></label></li><li><label><input type="checkbox"> <span>La fila contiene nombre, versión, puntaje y respuestas.</span></label></li><li><label><input type="checkbox"> <span>Confirmé permisos, privacidad y que no hay envíos duplicados.</span></label></li></ul>
+<h2>Problemas frecuentes</h2><dl><dt><em>Analizar cuestionario</em> está desactivado</dt><dd>Falta el archivo HTML5, el enlace de la carpeta o el dominio.</dd><dt>Aparece «Cuenta institucional no autorizada»</dt><dd>La cuenta que responde no pertenece al dominio configurado. Usa el modelo personal si debe aceptar otras cuentas.</dd><dt>Aparece «Ejecuta configurarRegistro() primero»</dt><dd>Falta el paso 15. Ejecútalo y vuelve a probar.</dd><dt>Cambié el código del script y no se nota el cambio</dt><dd>Ve a <em>Implementar</em> &gt; <em>Administrar implementaciones</em> &gt; <em>Editar</em> y elige <em>Versión: Nueva versión</em>.</dd><dt>No llegan los resultados de cuentas externas</dt><dd>La aplicación web no está en <em>Cualquier persona</em>. Corrígelo y publica una nueva versión.</dd></dl>
+<footer><p>Herramienta diseñada por Juan Guillermo Rivera Berrío con tecnología Claude 5.5 Sonnet y asistencia de OpenCode</p></footer>
+</main>
+</body>
+</html>
